@@ -12,7 +12,8 @@ public record DadosListagemPacientes(
         int idade,
         double peso,
         String tipoSanguineo,
-        LocalDate dataCadastro
+        LocalDate dataCadastro,
+        boolean ativo
 
 
 ) {
@@ -25,7 +26,8 @@ public record DadosListagemPacientes(
                 paciente.getIdade(),
                 paciente.getPeso(),
                 paciente.getTipoSanguineo().getDescricao(),
-                paciente.getDataCadastro()
+                paciente.getDataCadastro(),
+                paciente.isAtivo()
                 );
     }
 }

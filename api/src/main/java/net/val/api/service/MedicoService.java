@@ -34,22 +34,24 @@ public class MedicoService {
     }
 
     @Transactional
-    public void atualizar(DadosAtualizacaoMedico dados) {
+    public Medico atualizar(DadosAtualizacaoMedico dados) {
         Optional<Medico> medicoOptional = medicoRepository.findById(dados.id());
 
-        medicoOptional.ifPresentOrElse(m -> {
+        if (medicoOptional.isPresent()) {
+            Medico medico = medicoOptional.get();
             if (dados.nome() != null) {
-                m.setNome(dados.nome());
+                medico.setNome(dados.nome());
             }
             if (dados.telefone() != null) {
-                m.setTelefone(dados.telefone());
+                medico.setTelefone(dados.telefone());
             }
             if (dados.endereco() != null) {
-                Endereco.atualizarEndereco(m.getEndereco(), dados.endereco());
+                Endereco.atualizarEndereco(medico.getEndereco(), dados.endereco());
             }
-        }, () -> {
+            return medicoRepository.save(medico);
+        } else {
             throw new MedicoNotFoundException("Médico não encontrado com o ID: " + dados.id());
-        });
+        }
     }
 
     @Transactional

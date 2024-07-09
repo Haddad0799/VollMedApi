@@ -4,13 +4,14 @@ import jakarta.validation.Valid;
 import net.val.api.dtos.medicoDto.DadosAtualizacaoMedico;
 import net.val.api.dtos.medicoDto.DadosCadastraisMedico;
 import net.val.api.dtos.medicoDto.DadosListagemMedico;
-import net.val.api.dtos.medicoDto.DadosMedicosAtualizados;
+import net.val.api.dtos.medicoDto.DadosDetalhamentoMedico;
 import net.val.api.model.Medico;
 import net.val.api.service.MedicoService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/medicos")
@@ -23,10 +24,12 @@ public class MedicoController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> cadastrarMedico(@RequestBody @Valid DadosCadastraisMedico dadosCadastraisMedico) {
-        medicoService.cadastrarMedico(dadosCadastraisMedico);
+    public ResponseEntity<DadosDetalhamentoMedico> cadastrarMedico(@RequestBody @Valid DadosCadastraisMedico dadosCadastraisMedico, UriComponentsBuilder builder) {
+       Medico medico =  medicoService.cadastrarMedico(dadosCadastraisMedico);
+       //Devolver no cabeçalho da requisição a uri do local onde o cadastro foi realizado.
+       var uri = builder.path("/medicos/{id}").buildAndExpand(medico.getId()).toUri();
 
-       return ResponseEntity.ok().build();
+       return ResponseEntity.created(uri).body(new DadosDetalhamentoMedico(medico));
     }
 
     @GetMapping
@@ -34,15 +37,20 @@ public class MedicoController {
         return ResponseEntity.ok(medicoService.listarMedicos(paginacao));
     }
     @PutMapping
-    public ResponseEntity<DadosMedicosAtualizados> atualizarMedico(@RequestBody @Valid DadosAtualizacaoMedico dadosAtualizacaoMedico) {
+    public ResponseEntity<DadosDetalhamentoMedico> atualizarMedico(@RequestBody @Valid DadosAtualizacaoMedico dadosAtualizacaoMedico) {
        Medico medico = medicoService.atualizar(dadosAtualizacaoMedico);
 
-        return ResponseEntity.ok(new DadosMedicosAtualizados(medico));
+        return ResponseEntity.ok(new DadosDetalhamentoMedico(medico));
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id){
         medicoService.excluir(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{medicoId}")
+    public ResponseEntity<DadosDetalhamentoMedico> detalhamentoMedico(@PathVariable Long medicoId) {
+        return ResponseEntity.ok(medicoService.detalharMedico(medicoId));
     }
 }

@@ -17,8 +17,6 @@ public record DadosCadastraisPaciente(
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         LocalDate dataNasc,
         @NotNull
-        int idade,
-        @NotNull
         double peso,
         @NotBlank
         String tipoSanguineo,

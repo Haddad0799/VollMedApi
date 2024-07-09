@@ -5,7 +5,7 @@ import net.val.api.model.Paciente;
 
 import java.time.LocalDate;
 
-public record DadosPacientesAtualizados(
+public record DadosDetalhamentoPaciente(
         Long id,
         String nome,
         LocalDate dataNasc,
@@ -16,7 +16,7 @@ public record DadosPacientesAtualizados(
         String cpf,
         Endereco endereco
 ) {
-    public DadosPacientesAtualizados (Paciente paciente){
+    public DadosDetalhamentoPaciente(Paciente paciente){
         this(paciente.getId(), paciente.getNome(), paciente.getDataNasc()
                 ,paciente.getIdade(),
                 paciente.getPeso(),

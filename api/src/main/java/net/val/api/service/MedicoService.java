@@ -1,9 +1,11 @@
 package net.val.api.service;
 
+import jakarta.persistence.EntityNotFoundException;
+import lombok.SneakyThrows;
 import net.val.api.dtos.medicoDto.DadosAtualizacaoMedico;
 import net.val.api.dtos.medicoDto.DadosCadastraisMedico;
+import net.val.api.dtos.medicoDto.DadosDetalhamentoMedico;
 import net.val.api.dtos.medicoDto.DadosListagemMedico;
-import net.val.api.excepitions.MedicoNotFoundException;
 import net.val.api.model.Endereco;
 import net.val.api.model.Medico;
 import net.val.api.repositorys.MedicoRepository;
@@ -23,8 +25,9 @@ public class MedicoService {
         this.medicoRepository = medicoRepository;
     }
 
-    public void cadastrarMedico(DadosCadastraisMedico dados) {
-        medicoRepository.save(new Medico(dados));
+    public Medico cadastrarMedico(DadosCadastraisMedico dados) {
+
+       return medicoRepository.save(new Medico(dados));
     }
 
     @Transactional
@@ -50,7 +53,7 @@ public class MedicoService {
             }
             return medicoRepository.save(medico);
         } else {
-            throw new MedicoNotFoundException("Médico não encontrado com o ID: " + dados.id());
+            throw new EntityNotFoundException("Médico não encontrado com o ID: " + dados.id());
         }
     }
 
@@ -62,8 +65,21 @@ public class MedicoService {
             medico.setAtivo(false);
             medicoRepository.save(medico);
         } else {
-            throw new MedicoNotFoundException("Médico não encontrado com o ID: " + id);
+            throw new EntityNotFoundException("Médico não encontrado com o ID: " + id);
         }
+    }
+
+    @Transactional
+    @SneakyThrows
+    public DadosDetalhamentoMedico detalharMedico(Long medicoId) {
+        Optional<Medico> medicoOptional = medicoRepository.findById(medicoId);
+
+        if(medicoOptional.isPresent()) {
+            Medico medico = medicoOptional.get();
+
+            return new DadosDetalhamentoMedico(medico);
+        }
+        throw new EntityNotFoundException("Nenhum médico encontrado para o id fornecido: " + medicoId);
     }
 
 }

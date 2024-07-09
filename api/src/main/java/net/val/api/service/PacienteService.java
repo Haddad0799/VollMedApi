@@ -1,10 +1,11 @@
 package net.val.api.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.SneakyThrows;
 import net.val.api.dtos.pacienteDto.DadosAtualizacaoPaciente;
 import net.val.api.dtos.pacienteDto.DadosCadastraisPaciente;
+import net.val.api.dtos.pacienteDto.DadosDetalhamentoPaciente;
 import net.val.api.dtos.pacienteDto.DadosListagemPacientes;
-import net.val.api.excepitions.EntityNotFoundException;
 import net.val.api.model.Endereco;
 import net.val.api.model.Paciente;
 import net.val.api.repositorys.PacienteRepository;
@@ -25,13 +26,13 @@ public class PacienteService {
         this.pacienteRepository = pacienteRepository;
     }
 
-    public void CadastrarPaciente(DadosCadastraisPaciente dadosCadastraisPaciente) {
-        pacienteRepository.save(new Paciente(dadosCadastraisPaciente));
+    public Paciente CadastrarPaciente(DadosCadastraisPaciente dadosCadastraisPaciente) {
+       return pacienteRepository.save(new Paciente(dadosCadastraisPaciente));
     }
 
     @Transactional
     public Page<DadosListagemPacientes> listarPacientes(Pageable paginacao) {
-        return pacienteRepository.findAll(paginacao).map(DadosListagemPacientes::new);
+        return pacienteRepository.findAllByAtivoTrue(paginacao).map(DadosListagemPacientes::new);
     }
 
     @Transactional
@@ -78,6 +79,19 @@ public class PacienteService {
         } else {
             throw new EntityNotFoundException("Paciente com ID " + id + " não encontrado.");
         }
+    }
+
+    @Transactional
+    @SneakyThrows
+    public DadosDetalhamentoPaciente detalharPaciente (Long pacienteId) {
+        Optional<Paciente> pacienteOptional = pacienteRepository.findById(pacienteId);
+
+        if(pacienteOptional.isPresent()) {
+            Paciente paciente = pacienteOptional.get();
+
+            return new DadosDetalhamentoPaciente(paciente);
+        }
+        throw new EntityNotFoundException("Nenhum Paciente encontrado para o id fornecido: " + pacienteId);
     }
 
 }

@@ -4,7 +4,7 @@ import net.val.api.model.Endereco;
 import net.val.api.model.Especialidade;
 import net.val.api.model.Medico;
 
-public record DadosMedicosAtualizados(
+public record DadosDetalhamentoMedico(
         Long id,
         String nome,
         String email,
@@ -16,7 +16,7 @@ public record DadosMedicosAtualizados(
 
 ) {
 
-    public DadosMedicosAtualizados(Medico medico) {
+    public DadosDetalhamentoMedico(Medico medico) {
         this(medico.getId(), medico.getNome(),
                 medico.getEmail(), medico.getTelefone(),
                 medico.getCrm(),medico.getEspecialidade(),medico.getEndereco(), medico.isAtivo());

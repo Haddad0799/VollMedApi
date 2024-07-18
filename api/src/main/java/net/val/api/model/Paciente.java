@@ -19,9 +19,12 @@ public class Paciente {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Setter
+    @Column(unique = true)
     private String nome;
+    @Column(unique = true)
     private String cpf;
     @Setter
+    @Column(unique = true)
     private String telefone;
     @Embedded
     @Setter

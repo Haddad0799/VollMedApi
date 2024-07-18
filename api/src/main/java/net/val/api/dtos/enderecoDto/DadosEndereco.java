@@ -8,10 +8,8 @@ public record DadosEndereco(
 
         @NotBlank
         String logradouro,
-
         int numero,
         String complemento,
-
         @NotBlank
         String bairro,
         @NotBlank

@@ -57,6 +57,7 @@ public class TratadorDeErros {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(List.of(new DadosErrosValidacao("credenciais", "Credenciais inválidas! Verifique se a senha e login estão corretos.")));
     }
 
+
     @Getter
     public static class DadosErrosValidacao {
         private final String campo;

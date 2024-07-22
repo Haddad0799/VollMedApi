@@ -31,7 +31,7 @@ public class AutenticacaoService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
         return usuarioRepository.findByLogin(login)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + login));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found."));
     }
 
     public DadosTokenJwt efetuarLogin(DadosAutenticacao autenticacao) {

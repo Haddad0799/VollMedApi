@@ -1,7 +1,9 @@
 package net.val.api.infra.security;
 
+import lombok.Getter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,20 +13,33 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@Getter
 @Configuration
 @EnableWebSecurity
 public class ConfiguracaoSeguranca {
 
+    private final FiltroDeSeguranca filtroDeSeguranca;
+
+    public ConfiguracaoSeguranca(FiltroDeSeguranca filtroDeSeguranca) {
+        this.filtroDeSeguranca = filtroDeSeguranca;
+    }
+
     /* Desativando a autenticação padrão do springSecurity(statefull) para a autenticação stateless
      para urilizar tokens de autenticação.*/
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf(AbstractHttpConfigurer::disable)// Desabilita CSRF
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Define política de sessão como stateless
-                .build();
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, FiltroDeSeguranca filtroDeSeguranca) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(filtroDeSeguranca, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
     }
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
@@ -34,4 +49,5 @@ public class ConfiguracaoSeguranca {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }

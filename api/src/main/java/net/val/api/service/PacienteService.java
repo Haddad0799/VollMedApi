@@ -6,8 +6,9 @@ import net.val.api.dtos.pacienteDto.DadosAtualizacaoPaciente;
 import net.val.api.dtos.pacienteDto.DadosCadastraisPaciente;
 import net.val.api.dtos.pacienteDto.DadosDetalhamentoPaciente;
 import net.val.api.dtos.pacienteDto.DadosListagemPacientes;
-import net.val.api.model.Endereco;
-import net.val.api.model.Paciente;
+import net.val.api.domain.Endereco;
+import net.val.api.domain.Paciente;
+import net.val.api.infra.exceptions.pacienteExceptions.PacienteNaoEncontradoException;
 import net.val.api.repositorys.PacienteRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -61,7 +62,7 @@ public class PacienteService {
 
             return pacienteRepository.save(paciente);
         } else {
-            throw new EntityNotFoundException("Paciente com ID " + dadosAtualizacaoPaciente.id() + " não encontrado.");
+            throw new PacienteNaoEncontradoException(dadosAtualizacaoPaciente.id());
         }
     }
 
@@ -77,7 +78,7 @@ public class PacienteService {
                 pacienteRepository.save(paciente);
             }
         } else {
-            throw new EntityNotFoundException("Paciente com ID " + id + " não encontrado.");
+            throw new PacienteNaoEncontradoException(id);
         }
     }
 
@@ -91,7 +92,7 @@ public class PacienteService {
 
             return new DadosDetalhamentoPaciente(paciente);
         }
-        throw new EntityNotFoundException("Nenhum Paciente encontrado para o id fornecido: " + pacienteId);
+        throw new PacienteNaoEncontradoException(pacienteId);
     }
 
 }

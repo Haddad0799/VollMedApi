@@ -1,8 +1,10 @@
-package net.val.api.model;
+package net.val.api.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
 import net.val.api.dtos.medicoDto.DadosCadastraisMedico;
+
+import java.util.List;
 
 @Table(name = "medicos")
 @Entity(name = "Medico")
@@ -33,6 +35,8 @@ public class Medico {
 
     @Setter
     private boolean ativo;
+
+
 
     public Medico(DadosCadastraisMedico dadosCadastrais) {
         this.nome = dadosCadastrais.nome();

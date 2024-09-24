@@ -5,7 +5,7 @@ import net.val.api.dtos.pacienteDto.DadosAtualizacaoPaciente;
 import net.val.api.dtos.pacienteDto.DadosCadastraisPaciente;
 import net.val.api.dtos.pacienteDto.DadosDetalhamentoPaciente;
 import net.val.api.dtos.pacienteDto.DadosListagemPacientes;
-import net.val.api.model.Paciente;
+import net.val.api.domain.Paciente;
 import net.val.api.service.PacienteService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

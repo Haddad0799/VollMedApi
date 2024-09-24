@@ -1,6 +1,6 @@
 package net.val.api.dtos.medicoDto;
 
-import net.val.api.model.Medico;
+import net.val.api.domain.Medico;
 
 public record DadosListagemMedico(
         Long id,

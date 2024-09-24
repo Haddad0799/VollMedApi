@@ -1,6 +1,6 @@
 package net.val.api.repositorys;
 
-import net.val.api.model.Usuario;
+import net.val.api.domain.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;

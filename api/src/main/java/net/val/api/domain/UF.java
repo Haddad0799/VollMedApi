@@ -1,4 +1,4 @@
-package net.val.api.model;
+package net.val.api.domain;
 
 public enum UF {
     AC("AC"),

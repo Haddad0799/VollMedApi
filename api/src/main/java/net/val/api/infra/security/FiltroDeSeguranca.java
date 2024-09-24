@@ -4,7 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import net.val.api.infra.exceptions.TokenNotProvidedException;
+import net.val.api.infra.exceptions.tokenExceptions.TokenNotProvidedException;
 import net.val.api.repositorys.UsuarioRepository;
 import net.val.api.service.TokenService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,13 +28,18 @@ public class FiltroDeSeguranca extends OncePerRequestFilter {
         this.usuarioRepository = usuarioRepository;
     }
 
+
     @SneakyThrows
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
-        try {
-            String tokenJwt = recuperarToken(request);
 
-            if (tokenJwt != null) {
+        if (request.getRequestURI().equals("/login")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+                String tokenJwt = recuperarToken(request);
+
                 var subject = tokenService.getSubject(tokenJwt);
                 Optional<UserDetails> userDetails = usuarioRepository.findByLogin(subject);
 
@@ -43,16 +48,10 @@ public class FiltroDeSeguranca extends OncePerRequestFilter {
                     var usuarioAutenticado = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(usuarioAutenticado);
                 }
-            }
 
-            // Chamando os próximos filtros caso houver.
-            filterChain.doFilter(request, response);
+                // Chamando os próximos filtros caso houver.
+                filterChain.doFilter(request, response);
 
-        } catch (TokenNotProvidedException ex) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"campo\": \"token\", \"mensagem\": \"" + ex.getMessage() + "\"}");
-        }
     }
     private String recuperarToken(HttpServletRequest request) {
         var authorizationHeader = request.getHeader("Authorization");
@@ -60,6 +59,6 @@ public class FiltroDeSeguranca extends OncePerRequestFilter {
         if (authorizationHeader != null) {
             return authorizationHeader.replace("Bearer ", "");
         }
-        throw new TokenNotProvidedException("Token não fornecido!");
+        throw new TokenNotProvidedException();
     }
 }

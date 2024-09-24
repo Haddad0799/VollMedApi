@@ -1,75 +1,106 @@
 package net.val.api.infra.exceptions;
 
-import jakarta.persistence.EntityNotFoundException;
-import lombok.Getter;
+import jakarta.servlet.http.HttpServletRequest;
+import net.val.api.domain.ApiErro;
+import net.val.api.infra.exceptions.autenticacaoExceptions.UsuarioNaoEncontradoException;
+import net.val.api.infra.exceptions.consultaExceptions.HorarioInvalidoConsultaException;
+import net.val.api.infra.exceptions.medicoExceptions.MedicoInativoException;
+import net.val.api.infra.exceptions.medicoExceptions.MedicoNaoEncontradoException;
+import net.val.api.infra.exceptions.pacienteExceptions.PacienteNaoEncontradoException;
+import net.val.api.infra.exceptions.tokenExceptions.FalhaAoGerarTokenException;
+import net.val.api.infra.exceptions.tokenExceptions.InvalidTokenException;
+import net.val.api.infra.exceptions.tokenExceptions.TokenNotProvidedException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.http.HttpStatus;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class TratadorDeErros {
 
-    private static final Logger log = LoggerFactory.getLogger(TratadorDeErros.class);
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<List<DadosErrosValidacao>> tratarErro404(EntityNotFoundException ex) {
-        log.error("Entidade não encontrada", ex);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(new DadosErrosValidacao("id", "Entidade não encontrada")));
+    @ExceptionHandler(MedicoNaoEncontradoException.class)
+    public ResponseEntity<ApiErro> handleMedicoNaoEncontradoException(MedicoNaoEncontradoException ex, HttpServletRequest request) {
+        ApiErro apiErro = new ApiErro(LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+                );
+        return new ResponseEntity<>(apiErro, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<List<DadosErrosValidacao>> tratarErro400(MethodArgumentNotValidException ex) {
-        log.error("Erro de validação", ex);
-        var erros = ex.getFieldErrors();
-        var dadosErros = erros.stream()
-                .map(DadosErrosValidacao::new)
-                .collect(Collectors.toList());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(dadosErros);
+    @ExceptionHandler (MedicoInativoException.class)
+    public ResponseEntity<ApiErro> handleMedicoInativoException(MedicoInativoException ex, HttpServletRequest request) {
+        ApiErro apiErro = new ApiErro(LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI());
+
+        return new ResponseEntity<>(apiErro,HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<List<DadosErrosValidacao>> tratarErroIllegalArgument(IllegalArgumentException ex) {
-        log.error("Argumento ilegal", ex);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(new DadosErrosValidacao("argumento", ex.getMessage())));
+    @ExceptionHandler(PacienteNaoEncontradoException.class)
+    public ResponseEntity<ApiErro> handlePacienteNaoEncontradoException(PacienteNaoEncontradoException ex, HttpServletRequest request) {
+        ApiErro apiErro = new ApiErro(LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI());
+        return new ResponseEntity<>(apiErro,HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<List<DadosErrosValidacao>> tratarErro500(Exception ex) {
-        log.error("Erro interno do servidor", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of(new DadosErrosValidacao("servidor", "Ocorreu um erro interno no servidor.")));
+    @ExceptionHandler(HorarioInvalidoConsultaException.class)
+    public ResponseEntity<ApiErro> handleHorarioInvalidoConsultaException(HorarioInvalidoConsultaException ex, HttpServletRequest request) {
+        ApiErro apiErro = new ApiErro(LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI());
+        return new ResponseEntity<>(apiErro,HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<List<DadosErrosValidacao>> tratarErro403(BadCredentialsException ex) {
-        log.error("Credenciais inválidas!", ex);
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(List.of(new DadosErrosValidacao("credenciais", "Credenciais inválidas! Verifique se a senha e login estão corretos.")));
+    @ExceptionHandler(TokenNotProvidedException.class)
+    public ResponseEntity<ApiErro> handleTokenNotProvidedException(TokenNotProvidedException ex, HttpServletRequest request) {
+        ApiErro apiErro = new ApiErro(LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI());
+        return new ResponseEntity<>(apiErro,HttpStatus.BAD_REQUEST);
     }
 
-
-    @Getter
-    public static class DadosErrosValidacao {
-        private final String campo;
-        private final String mensagem;
-
-        public DadosErrosValidacao(String campo, String mensagem) {
-            this.campo = campo;
-            this.mensagem = mensagem;
-        }
-
-        public DadosErrosValidacao(FieldError erro) {
-            this(erro.getField(), erro.getDefaultMessage());
-        }
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ApiErro> handleInvalidTokenException(InvalidTokenException ex, HttpServletRequest request) {
+        ApiErro apiErro = new ApiErro(LocalDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI());
+        return new ResponseEntity<>(apiErro,HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(FalhaAoGerarTokenException.class)
+    public ResponseEntity<ApiErro> handleFalhaAoGerarTokenException(FalhaAoGerarTokenException ex, HttpServletRequest request) {
+        ApiErro apiErro = new ApiErro(LocalDateTime.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI());
+        return new ResponseEntity<>(apiErro,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(UsuarioNaoEncontradoException.class)
+    public ResponseEntity<ApiErro> handleUsuarioNaoEncontradoException(UsuarioNaoEncontradoException ex, HttpServletRequest request) {
+        ApiErro apiErro = new ApiErro(LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI());
+        return new ResponseEntity<>(apiErro,HttpStatus.NOT_FOUND);
+    }
+
 }

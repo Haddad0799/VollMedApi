@@ -1,4 +1,4 @@
-package net.val.api.model;
+package net.val.api.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -6,6 +6,7 @@ import net.val.api.dtos.pacienteDto.DadosCadastraisPaciente;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.List;
 
 @Getter
 @Setter
@@ -39,6 +40,7 @@ public class Paciente {
     @Setter
     private boolean ativo;
 
+
     public Paciente(DadosCadastraisPaciente dadosCadastraisPaciente) {
         this.nome = dadosCadastraisPaciente.nome();
         this.cpf = dadosCadastraisPaciente.cpf();
@@ -48,14 +50,16 @@ public class Paciente {
         this.dataNasc = dadosCadastraisPaciente.dataNasc();
         this.peso = dadosCadastraisPaciente.peso();
         this.dataCadastro = LocalDate.now();
-        this.idade = calcularIdade(this.dataNasc, this.dataCadastro);
+        this.idade = calcularIdade(this.dataNasc);
         this.ativo = true;
     }
 
-    private int calcularIdade(LocalDate dataNasc, LocalDate dataAtual) {
-        if ((dataNasc != null) && (dataAtual != null)) {
-            return Period.between(dataNasc, dataAtual).getYears();
-        } else {
+    private int calcularIdade(LocalDate dataNasc) {
+            if (dataNasc != null) {
+                LocalDate dataAtual = LocalDate.now();
+                return Period.between(dataNasc, dataAtual).getYears();
+            }
+            else {
             return 0;
         }
     }

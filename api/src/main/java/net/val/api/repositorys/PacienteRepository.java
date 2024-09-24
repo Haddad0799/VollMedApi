@@ -1,6 +1,6 @@
 package net.val.api.repositorys;
 
-import net.val.api.model.Paciente;
+import net.val.api.domain.Paciente;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

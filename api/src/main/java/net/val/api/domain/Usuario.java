@@ -1,4 +1,4 @@
-package net.val.api.model;
+package net.val.api.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -23,6 +23,7 @@ public class Usuario implements UserDetails {
     private Long id;
     private String senha;
     private String login;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

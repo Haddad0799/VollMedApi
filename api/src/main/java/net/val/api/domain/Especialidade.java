@@ -1,4 +1,4 @@
-package net.val.api.model;
+package net.val.api.domain;
 
 public enum Especialidade {
     ORTOPEDIA("ortopedia"),

@@ -1,8 +1,8 @@
 package net.val.api.dtos.medicoDto;
 
-import net.val.api.model.Endereco;
-import net.val.api.model.Especialidade;
-import net.val.api.model.Medico;
+import net.val.api.domain.Endereco;
+import net.val.api.domain.Especialidade;
+import net.val.api.domain.Medico;
 
 public record DadosDetalhamentoMedico(
         Long id,

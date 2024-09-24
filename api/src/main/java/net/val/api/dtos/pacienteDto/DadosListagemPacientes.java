@@ -1,6 +1,6 @@
 package net.val.api.dtos.pacienteDto;
 
-import net.val.api.model.Paciente;
+import net.val.api.domain.Paciente;
 
 import java.time.LocalDate;
 

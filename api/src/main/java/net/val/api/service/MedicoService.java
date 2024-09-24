@@ -6,8 +6,10 @@ import net.val.api.dtos.medicoDto.DadosAtualizacaoMedico;
 import net.val.api.dtos.medicoDto.DadosCadastraisMedico;
 import net.val.api.dtos.medicoDto.DadosDetalhamentoMedico;
 import net.val.api.dtos.medicoDto.DadosListagemMedico;
-import net.val.api.model.Endereco;
-import net.val.api.model.Medico;
+import net.val.api.domain.Endereco;
+import net.val.api.domain.Medico;
+import net.val.api.infra.exceptions.medicoExceptions.MedicoInativoException;
+import net.val.api.infra.exceptions.medicoExceptions.MedicoNaoEncontradoException;
 import net.val.api.repositorys.MedicoRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,7 +55,7 @@ public class MedicoService {
             }
             return medicoRepository.save(medico);
         } else {
-            throw new EntityNotFoundException("Médico não encontrado com o ID: " + dados.id());
+            throw new MedicoNaoEncontradoException(dados.id());
         }
     }
 
@@ -65,7 +67,7 @@ public class MedicoService {
             medico.setAtivo(false);
             medicoRepository.save(medico);
         } else {
-            throw new EntityNotFoundException("Médico não encontrado com o ID: " + id);
+            throw new MedicoNaoEncontradoException(id);
         }
     }
 
@@ -79,7 +81,7 @@ public class MedicoService {
 
             return new DadosDetalhamentoMedico(medico);
         }
-        throw new EntityNotFoundException("Nenhum médico encontrado para o id fornecido: " + medicoId);
+        throw new MedicoNaoEncontradoException(medicoId);
     }
 
 }

@@ -2,7 +2,7 @@ package net.val.api.dtos.enderecoDto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import net.val.api.model.Endereco;
+import net.val.api.domain.Endereco;
 
 public record DadosEndereco(
 

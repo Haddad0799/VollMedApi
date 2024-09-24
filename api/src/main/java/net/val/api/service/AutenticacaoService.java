@@ -1,15 +1,15 @@
 package net.val.api.service;
 
+import net.val.api.domain.Usuario;
 import net.val.api.dtos.autenticacaoDto.DadosAutenticacao;
 import net.val.api.dtos.tokenDto.DadosTokenJwt;
-import net.val.api.model.Usuario;
+import net.val.api.infra.exceptions.autenticacaoExceptions.UsuarioNaoEncontradoException;
 import net.val.api.repositorys.UsuarioRepository;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,9 +29,9 @@ public class AutenticacaoService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String login) throws UsuarioNaoEncontradoException {
         return usuarioRepository.findByLogin(login)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found."));
+                .orElseThrow(UsuarioNaoEncontradoException::new);
     }
 
     public DadosTokenJwt efetuarLogin(DadosAutenticacao autenticacao) {

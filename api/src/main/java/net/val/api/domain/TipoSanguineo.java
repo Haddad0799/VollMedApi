@@ -1,4 +1,4 @@
-package net.val.api.model;
+package net.val.api.domain;
 
 import lombok.Getter;
 

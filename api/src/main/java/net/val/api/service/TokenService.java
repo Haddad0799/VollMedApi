@@ -3,7 +3,9 @@ package net.val.api.service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import lombok.SneakyThrows;
 import net.val.api.infra.exceptions.tokenExceptions.FalhaAoGerarTokenException;
 import net.val.api.infra.exceptions.tokenExceptions.InvalidTokenException;
@@ -38,9 +40,7 @@ public class TokenService {
 
     @SneakyThrows
     public String getSubject(String token)  {
-        if (token == null) {
-            throw new TokenNotProvidedException();
-        }
+
 
         try {
             var algoritmo = Algorithm.HMAC256(jwtSecret);
@@ -50,7 +50,7 @@ public class TokenService {
                     .build()
                     .verify(token)
                     .getSubject();
-        } catch (JWTVerificationException ex) {
+        } catch (JWTDecodeException  | TokenExpiredException ex) {
             throw new InvalidTokenException();
         }
     }

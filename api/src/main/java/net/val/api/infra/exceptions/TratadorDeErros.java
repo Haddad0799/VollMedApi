@@ -3,7 +3,10 @@ package net.val.api.infra.exceptions;
 import jakarta.servlet.http.HttpServletRequest;
 import net.val.api.domain.ApiErro;
 import net.val.api.infra.exceptions.autenticacaoExceptions.UsuarioNaoEncontradoException;
+import net.val.api.infra.exceptions.consultaExceptions.ConflitoDeHorarioMedicoException;
+import net.val.api.infra.exceptions.consultaExceptions.ConflitoDeHorarioPacienteException;
 import net.val.api.infra.exceptions.consultaExceptions.HorarioInvalidoConsultaException;
+import net.val.api.infra.exceptions.consultaExceptions.PacienteComConsultaDuplicadaException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoInativoException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoNaoEncontradoException;
 import net.val.api.infra.exceptions.pacienteExceptions.PacienteNaoEncontradoException;
@@ -71,6 +74,21 @@ public class TratadorDeErros {
     @ExceptionHandler(UsuarioNaoEncontradoException.class)
     public ResponseEntity<ApiErro> handleUsuarioNaoEncontradoException(UsuarioNaoEncontradoException ex, HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(ConflitoDeHorarioMedicoException.class)
+    public ResponseEntity<ApiErro> handleConflitoDeHorarioException(ConflitoDeHorarioMedicoException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(PacienteComConsultaDuplicadaException.class)
+    public ResponseEntity<ApiErro> handlePacienteComConsultaDuplicadaException(PacienteComConsultaDuplicadaException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(ConflitoDeHorarioPacienteException.class)
+    public ResponseEntity<ApiErro> handleConflitoDeHorarioPacienteException(ConflitoDeHorarioPacienteException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
     }
 
 }

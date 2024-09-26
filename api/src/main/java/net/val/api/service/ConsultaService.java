@@ -4,7 +4,10 @@ import net.val.api.domain.Consulta;
 import net.val.api.domain.Medico;
 import net.val.api.domain.Paciente;
 import net.val.api.dtos.consultaDto.DadosAgendamentoConsulta;
+import net.val.api.infra.exceptions.consultaExceptions.ConflitoDeHorarioMedicoException;
+import net.val.api.infra.exceptions.consultaExceptions.ConflitoDeHorarioPacienteException;
 import net.val.api.infra.exceptions.consultaExceptions.HorarioInvalidoConsultaException;
+import net.val.api.infra.exceptions.consultaExceptions.PacienteComConsultaDuplicadaException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoInativoException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoNaoEncontradoException;
 import net.val.api.infra.exceptions.pacienteExceptions.PacienteNaoEncontradoException;
@@ -18,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 
 @Service
 public class ConsultaService {
@@ -26,7 +28,9 @@ public class ConsultaService {
     private final MedicoRepository medicoRepository;
     private final PacienteRepository pacienteRepository;
 
-    public ConsultaService(@Lazy ConsultaRepository consultaRepository,@Lazy MedicoRepository medicoRepository,@Lazy PacienteRepository pacienteRepository) {
+    public ConsultaService(@Lazy ConsultaRepository consultaRepository,
+                           @Lazy MedicoRepository medicoRepository,
+                           @Lazy PacienteRepository pacienteRepository) {
         this.consultaRepository = consultaRepository;
         this.medicoRepository = medicoRepository;
         this.pacienteRepository = pacienteRepository;
@@ -34,43 +38,75 @@ public class ConsultaService {
 
     @Transactional
     public Consulta agendarConsulta(DadosAgendamentoConsulta agendamentoConsulta) {
-       Medico medico = medicoRepository.findById(
-               agendamentoConsulta.medicoId()).orElseThrow(
-                       () -> new MedicoNaoEncontradoException(agendamentoConsulta.medicoId()));
+        // Buscar o médico
+        Medico medico = medicoRepository.findById(agendamentoConsulta.medicoId())
+                .orElseThrow(() -> new MedicoNaoEncontradoException(agendamentoConsulta.medicoId()));
 
-       Paciente paciente = pacienteRepository.findById(
-               agendamentoConsulta.pacienteId()).orElseThrow(
-                       () -> new PacienteNaoEncontradoException(agendamentoConsulta.pacienteId()));
+        // Buscar o paciente
+        Paciente paciente = pacienteRepository.findById(agendamentoConsulta.pacienteId())
+                .orElseThrow(() -> new PacienteNaoEncontradoException(agendamentoConsulta.pacienteId()));
 
-       if(!medico.isAtivo()) {
-           throw new MedicoInativoException(medico.getId());
-       }
-       if (!dataIsValid(agendamentoConsulta.dataConsulta())) {
-           throw new HorarioInvalidoConsultaException();
-       }
+        // Validar o estado do médico
+        if (!medico.isAtivo()) {
+            throw new MedicoInativoException(medico.getId());
+        }
+
+        // Validar a data/hora da consulta
+        LocalDateTime dataConsulta = agendamentoConsulta.dataConsulta();
+        if (!dataIsValid(dataConsulta)) {
+            throw new HorarioInvalidoConsultaException();
+        }
+
+        // Verificar conflitos de horário
+         verificarConflitoDeHorario(paciente.getId(), medico.getId(), dataConsulta);
+
+        // Criar e salvar a consulta
         Consulta consulta = new Consulta(agendamentoConsulta, medico, paciente);
         consultaRepository.save(consulta);
 
-       return consulta;
+        return consulta;
     }
 
-    public boolean dataIsValid(LocalDateTime data) {
+    private boolean dataIsValid(LocalDateTime data) {
         DayOfWeek diaDaSemana = data.getDayOfWeek();
         LocalTime hora = data.toLocalTime();
-
 
         if (diaDaSemana == DayOfWeek.SUNDAY) {
             return false;
         }
 
         if (diaDaSemana.getValue() >= DayOfWeek.MONDAY.getValue()
-                && diaDaSemana.getValue() <= DayOfWeek.FRIDAY.getValue()){
-            return hora.isBefore(LocalTime.of(17,0)) && !hora.isBefore(LocalTime.of(8,0));
+                && diaDaSemana.getValue() <= DayOfWeek.FRIDAY.getValue()) {
+            return  !hora.isBefore(LocalTime.of(8, 0)) && !hora.isAfter(LocalTime.of(17, 0));
         }
 
-        if(diaDaSemana.getValue() == DayOfWeek.SATURDAY.getValue()) {
-            return hora.isBefore(LocalTime.of(11,0)) && !hora.isBefore(LocalTime.of(8,0));
+        if (diaDaSemana.getValue() == DayOfWeek.SATURDAY.getValue()) {
+            return !hora.isBefore(LocalTime.of(8, 0)) && !hora.isAfter(LocalTime.of(11, 0));
         }
         return false;
     }
+
+    private void verificarConflitoDeHorario(Long pacienteId, Long medicoId, LocalDateTime dataConsulta) {
+        // Definir o início e o fim do intervalo de 30 minutos
+        LocalDateTime inicioConsulta = dataConsulta.minusMinutes(29);
+        LocalDateTime fimConsulta = dataConsulta.plusMinutes(29);
+
+        // Verificar se há conflito de horário para o médico
+        if (consultaRepository.existsByMedicoIdAndDataConsultaBetween(medicoId, inicioConsulta, fimConsulta)) {
+            throw new ConflitoDeHorarioMedicoException(dataConsulta, medicoId);
+        }
+
+        // Verificar se há conflito de horário para o paciente
+        if (consultaRepository.existsByPacienteIdAndDataConsultaBetween(pacienteId, inicioConsulta, fimConsulta)) {
+            throw new ConflitoDeHorarioPacienteException(dataConsulta);
+        }
+
+        // Verificar se o paciente já tem outra consulta no mesmo dia com o mesmo médico
+        if (consultaRepository.existsByPacienteIdAndMedicoIdAndDataConsulta(pacienteId, medicoId, dataConsulta.toLocalDate())) {
+            throw new PacienteComConsultaDuplicadaException(pacienteId,dataConsulta);
+        }
+    }
+
+
+
 }

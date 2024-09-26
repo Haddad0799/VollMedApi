@@ -21,86 +21,56 @@ import java.time.LocalDateTime;
 public class TratadorDeErros {
 
 
-    @ExceptionHandler(MedicoNaoEncontradoException.class)
-    public ResponseEntity<ApiErro> handleMedicoNaoEncontradoException(MedicoNaoEncontradoException ex, HttpServletRequest request) {
-        ApiErro apiErro = new ApiErro(LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.getReasonPhrase(),
-                ex.getMessage(),
+    private ResponseEntity<ApiErro> buildErrorResponse(HttpStatus status, String message, HttpServletRequest request) {
+        ApiErro apiErro = new ApiErro(
+                LocalDateTime.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                message,
                 request.getRequestURI()
-                );
-        return new ResponseEntity<>(apiErro, HttpStatus.NOT_FOUND);
+        );
+        return new ResponseEntity<>(apiErro, status);
     }
 
-    @ExceptionHandler (MedicoInativoException.class)
-    public ResponseEntity<ApiErro> handleMedicoInativoException(MedicoInativoException ex, HttpServletRequest request) {
-        ApiErro apiErro = new ApiErro(LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                ex.getMessage(),
-                request.getRequestURI());
+    // Handlers para exceções específicas
+    @ExceptionHandler(MedicoNaoEncontradoException.class)
+    public ResponseEntity<ApiErro> handleMedicoNaoEncontradoException(MedicoNaoEncontradoException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+    }
 
-        return new ResponseEntity<>(apiErro,HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(MedicoInativoException.class)
+    public ResponseEntity<ApiErro> handleMedicoInativoException(MedicoInativoException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
     }
 
     @ExceptionHandler(PacienteNaoEncontradoException.class)
     public ResponseEntity<ApiErro> handlePacienteNaoEncontradoException(PacienteNaoEncontradoException ex, HttpServletRequest request) {
-        ApiErro apiErro = new ApiErro(LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.getReasonPhrase(),
-                ex.getMessage(),
-                request.getRequestURI());
-        return new ResponseEntity<>(apiErro,HttpStatus.NOT_FOUND);
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
     }
 
     @ExceptionHandler(HorarioInvalidoConsultaException.class)
     public ResponseEntity<ApiErro> handleHorarioInvalidoConsultaException(HorarioInvalidoConsultaException ex, HttpServletRequest request) {
-        ApiErro apiErro = new ApiErro(LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                ex.getMessage(),
-                request.getRequestURI());
-        return new ResponseEntity<>(apiErro,HttpStatus.BAD_REQUEST);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
     }
 
     @ExceptionHandler(TokenNotProvidedException.class)
     public ResponseEntity<ApiErro> handleTokenNotProvidedException(TokenNotProvidedException ex, HttpServletRequest request) {
-        ApiErro apiErro = new ApiErro(LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                ex.getMessage(),
-                request.getRequestURI());
-        return new ResponseEntity<>(apiErro,HttpStatus.BAD_REQUEST);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
     }
 
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<ApiErro> handleInvalidTokenException(InvalidTokenException ex, HttpServletRequest request) {
-        ApiErro apiErro = new ApiErro(LocalDateTime.now(),
-                HttpStatus.UNAUTHORIZED.value(),
-                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
-                ex.getMessage(),
-                request.getRequestURI());
-        return new ResponseEntity<>(apiErro,HttpStatus.UNAUTHORIZED);
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), request);
     }
 
     @ExceptionHandler(FalhaAoGerarTokenException.class)
     public ResponseEntity<ApiErro> handleFalhaAoGerarTokenException(FalhaAoGerarTokenException ex, HttpServletRequest request) {
-        ApiErro apiErro = new ApiErro(LocalDateTime.now(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                ex.getMessage(),
-                request.getRequestURI());
-        return new ResponseEntity<>(apiErro,HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request);
     }
 
     @ExceptionHandler(UsuarioNaoEncontradoException.class)
     public ResponseEntity<ApiErro> handleUsuarioNaoEncontradoException(UsuarioNaoEncontradoException ex, HttpServletRequest request) {
-        ApiErro apiErro = new ApiErro(LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.getReasonPhrase(),
-                ex.getMessage(),
-                request.getRequestURI());
-        return new ResponseEntity<>(apiErro,HttpStatus.NOT_FOUND);
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
     }
 
 }

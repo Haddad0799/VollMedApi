@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Service
 public class ConsultaService {
@@ -47,7 +48,7 @@ public class ConsultaService {
        if (!dataIsValid(agendamentoConsulta.dataConsulta())) {
            throw new HorarioInvalidoConsultaException();
        }
-        Consulta consulta = new Consulta(agendamentoConsulta, medico,paciente);
+        Consulta consulta = new Consulta(agendamentoConsulta, medico, paciente);
         consultaRepository.save(consulta);
 
        return consulta;
@@ -56,6 +57,7 @@ public class ConsultaService {
     public boolean dataIsValid(LocalDateTime data) {
         DayOfWeek diaDaSemana = data.getDayOfWeek();
         LocalTime hora = data.toLocalTime();
+
 
         if (diaDaSemana == DayOfWeek.SUNDAY) {
             return false;

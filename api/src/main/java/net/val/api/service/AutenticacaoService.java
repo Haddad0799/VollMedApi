@@ -39,6 +39,7 @@ public class AutenticacaoService implements UserDetailsService {
         var autenticado = manager.authenticate(token);
 
         return new DadosTokenJwt(tokenService.gerarToken((Usuario) autenticado.getPrincipal()));
+
     }
 }
 

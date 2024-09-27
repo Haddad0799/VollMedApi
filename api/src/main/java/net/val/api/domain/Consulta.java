@@ -26,6 +26,7 @@ public class Consulta {
 
     private LocalDateTime dataConsulta;
 
+    @Enumerated(EnumType.STRING)
     private Especialidade especialidadeMedica;
 
     @Enumerated(EnumType.STRING)

@@ -4,7 +4,6 @@ import net.val.api.domain.Usuario;
 import net.val.api.dtos.autenticacaoDto.DadosAutenticacao;
 import net.val.api.dtos.tokenDto.DadosTokenJwt;
 import net.val.api.infra.exceptions.autenticacaoExceptions.UsuarioNaoEncontradoException;
-import net.val.api.infra.exceptions.tokenExceptions.FalhaAoGerarTokenException;
 import net.val.api.repositorys.UsuarioRepository;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;

@@ -75,7 +75,7 @@ public class TratadorDeErros {
     @ExceptionHandler({
             MedicoNaoEncontradoException.class,
             PacienteNaoEncontradoException.class,
-            UsuarioNaoEncontradoException.class
+            UsuarioNaoEncontradoException.class,
     })
     public ResponseEntity<ApiErro> handleNotFoundExceptions(RuntimeException ex, HttpServletRequest request) {
         logger.error("Erro NOT_FOUND: {}", ex.getMessage());

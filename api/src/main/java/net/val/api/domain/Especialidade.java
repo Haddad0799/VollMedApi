@@ -20,6 +20,6 @@ public enum Especialidade {
                 return e;
             }
         }
-        throw new EspecialidadeInvalidaException( text);
+        throw new EspecialidadeInvalidaException(text);
     }
 }

@@ -6,7 +6,6 @@ import net.val.api.dtos.pacienteDto.DadosCadastraisPaciente;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.List;
 
 @Getter
 @Setter
@@ -46,7 +45,7 @@ public class Paciente {
         this.cpf = dadosCadastraisPaciente.cpf();
         this.telefone = dadosCadastraisPaciente.telefone();
         this.endereco = new Endereco(dadosCadastraisPaciente.endereco());
-        this.tipoSanguineo = TipoSanguineo.fromDescricao(dadosCadastraisPaciente.tipoSanguineo());
+        this.tipoSanguineo = TipoSanguineo.fromTipo(dadosCadastraisPaciente.tipoSanguineo());
         this.dataNasc = dadosCadastraisPaciente.dataNasc();
         this.peso = dadosCadastraisPaciente.peso();
         this.dataCadastro = LocalDate.now();

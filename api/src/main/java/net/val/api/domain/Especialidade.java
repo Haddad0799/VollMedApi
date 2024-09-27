@@ -1,5 +1,7 @@
 package net.val.api.domain;
 
+import net.val.api.infra.exceptions.especialidadeExceptions.EspecialidadeInvalidaException;
+
 public enum Especialidade {
     ORTOPEDIA("ortopedia"),
     CARDIOLOGIA("cardiologia"),
@@ -12,12 +14,12 @@ public enum Especialidade {
 
     private final String especialidade;
 
-    public static Especialidade fromString(String text) {
+    public static Especialidade fromEspecialidade(String text) {
         for (Especialidade e : Especialidade.values()) {
             if (e.especialidade.equalsIgnoreCase(text)) {
                 return e;
             }
         }
-        throw new IllegalArgumentException("Nenhuma especialidade encontrada: " + text);
+        throw new EspecialidadeInvalidaException( text);
     }
 }

@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import net.val.api.dtos.medicoDto.DadosCadastraisMedico;
 
-import java.util.List;
-
 @Table(name = "medicos")
 @Entity(name = "Medico")
 @Getter
@@ -43,7 +41,7 @@ public class Medico {
         this.email = dadosCadastrais.email();
         this.telefone = dadosCadastrais.telefone();
         this.crm = Long.parseLong(dadosCadastrais.crm());
-        this.especialidade = Especialidade.fromString(dadosCadastrais.especialidade());
+        this.especialidade = Especialidade.fromEspecialidade(dadosCadastrais.especialidade());
         this.endereco = new Endereco(dadosCadastrais.endereco());
         this.ativo = true;
     }

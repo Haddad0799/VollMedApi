@@ -28,7 +28,7 @@ public class Endereco {
         this.complemento = dadosEndereco.complemento();
         this.bairro = dadosEndereco.bairro();
         this.cidade = dadosEndereco.cidade();
-        this.uf = UF.fromString(dadosEndereco.uf());
+        this.uf = UF.fromUf(dadosEndereco.uf());
         this.cep = dadosEndereco.cep();
     }
 
@@ -49,7 +49,7 @@ public class Endereco {
             endereco.setCidade(dadosEndereco.cidade());
         }
         if (dadosEndereco.uf() != null) {
-            endereco.setUf(UF.fromString(dadosEndereco.uf()));
+            endereco.setUf(UF.fromUf(dadosEndereco.uf()));
         }
         if (dadosEndereco.cep() != null) {
             endereco.setCep(dadosEndereco.cep());

@@ -1,6 +1,7 @@
 package net.val.api.service;
 
 import net.val.api.domain.Consulta;
+import net.val.api.domain.Especialidade;
 import net.val.api.domain.Medico;
 import net.val.api.domain.Paciente;
 import net.val.api.dtos.consultaDto.DadosAgendamentoConsulta;
@@ -12,14 +13,14 @@ import net.val.api.repositorys.ConsultaRepository;
 import net.val.api.repositorys.MedicoRepository;
 import net.val.api.repositorys.PacienteRepository;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
+import java.util.Optional;
 
 @Service
 public class ConsultaService {
@@ -38,29 +39,50 @@ public class ConsultaService {
     @Transactional
     public Consulta agendarConsulta(DadosAgendamentoConsulta agendamentoConsulta) {
 
-            // Buscar o médico
-            Medico medico = medicoRepository.findById(agendamentoConsulta.medicoId())
-                    .orElseThrow(() -> new MedicoNaoEncontradoException(agendamentoConsulta.medicoId()));
+        Medico medico;
+        Paciente paciente;
 
-            // Buscar o paciente
-            Paciente paciente = pacienteRepository.findById(agendamentoConsulta.pacienteId())
-                    .orElseThrow(() -> new PacienteNaoEncontradoException(agendamentoConsulta.pacienteId()));
+        garantirAntecedencia(agendamentoConsulta.dataConsulta());
+
+        // Validar a data/hora da consulta
+        LocalDateTime dataConsulta = agendamentoConsulta.dataConsulta();
+        if (!dataIsValid(dataConsulta)) {
+            throw new HorarioInvalidoConsultaException();
+        }
+
+        // Buscar o paciente
+        paciente = pacienteRepository.findById(agendamentoConsulta.pacienteId())
+                .orElseThrow(() -> new PacienteNaoEncontradoException(agendamentoConsulta.pacienteId()));
+
+
+        if(agendamentoConsulta.medicoId().describeConstable().isEmpty()){
+
+              Optional<Medico> medicoAleatorio = medicoRepository.medicoAletorio(Especialidade.fromEspecialidade(agendamentoConsulta.especialidadeMedica()));
+
+              if(medicoAleatorio.isPresent()) {
+                  medico = medicoAleatorio.get();
+                  Consulta consulta = new Consulta(agendamentoConsulta, medico, paciente);
+                  consultaRepository.save(consulta);
+
+                  // Verificar conflitos de horário
+                  verificarConflitoDeHorario(paciente.getId(), medico.getId(), dataConsulta);
+
+                  return consulta;
+              }
+            }
+
+             medico = medicoRepository.findByIdAndAndEspecialidade(agendamentoConsulta.medicoId(),Especialidade.fromEspecialidade(agendamentoConsulta.especialidadeMedica()))
+                    .orElseThrow(() -> new MedicoNaoEncontradoException(agendamentoConsulta.medicoId()));
 
             // Validar o estado do médico
             if (!medico.isAtivo()) {
                 throw new MedicoInativoException(medico.getId());
             }
 
-            // Validar a data/hora da consulta
-            LocalDateTime dataConsulta = agendamentoConsulta.dataConsulta();
-            if (!dataIsValid(dataConsulta)) {
-                throw new HorarioInvalidoConsultaException();
-            }
-
-            // Verificar conflitos de horário
+        // Verificar conflitos de horário
             verificarConflitoDeHorario(paciente.getId(), medico.getId(), dataConsulta);
 
-            // Criar e salvar a consulta
+            // Criar e salvar a consulta enviada com um médico.
             Consulta consulta = new Consulta(agendamentoConsulta, medico, paciente);
             consultaRepository.save(consulta);
 
@@ -77,20 +99,17 @@ public class ConsultaService {
         }
 
         if (diaDaSemana.getValue() >= DayOfWeek.MONDAY.getValue()
-                && diaDaSemana.getValue() <= DayOfWeek.FRIDAY.getValue()) {
-            return  !hora.isBefore(LocalTime.of(8, 0)) && !hora.isAfter(LocalTime.of(17, 0));
+                && diaDaSemana.getValue() <= DayOfWeek.SATURDAY.getValue()) {
+            return  !hora.isBefore(LocalTime.of(8, 0)) && !hora.isAfter(LocalTime.of(19, 0));
         }
 
-        if (diaDaSemana.getValue() == DayOfWeek.SATURDAY.getValue()) {
-            return !hora.isBefore(LocalTime.of(8, 0)) && !hora.isAfter(LocalTime.of(11, 0));
-        }
         return false;
     }
 
     private void verificarConflitoDeHorario(Long pacienteId, Long medicoId, LocalDateTime dataConsulta) {
-        // Definir o início e o fim do intervalo de 30 minutos
-        LocalDateTime inicioConsulta = dataConsulta.minusMinutes(29);
-        LocalDateTime fimConsulta = dataConsulta.plusMinutes(29);
+        // Definir o início e o fim do intervalo de 60 minutos
+        LocalDateTime inicioConsulta = dataConsulta.minusMinutes(59);
+        LocalDateTime fimConsulta = dataConsulta.plusMinutes(59);
 
         // Verificar se há conflito de horário para o médico
         if (consultaRepository.existsByMedicoIdAndDataConsultaBetween(medicoId, inicioConsulta, fimConsulta)) {
@@ -102,12 +121,20 @@ public class ConsultaService {
             throw new ConflitoDeHorarioPacienteException(dataConsulta);
         }
 
-        // Verificar se o paciente já tem outra consulta no mesmo dia com o mesmo médico
+        // Verificar se o paciente já tem outra consulta no mesmo dia com o mesmo médico.
         if (consultaRepository.existsByPacienteIdAndMedicoIdAndDataConsulta(pacienteId, medicoId, dataConsulta.toLocalDate())) {
             throw new PacienteComConsultaDuplicadaException(pacienteId,dataConsulta);
         }
     }
 
+    private void garantirAntecedencia(LocalDateTime dataConsulta) {
 
+        LocalDateTime agora = LocalDateTime.now();
 
+        long minutosDeAntecedencia = Duration.between(agora,dataConsulta).toMinutes();
+
+        if (minutosDeAntecedencia <= 30) {
+            throw new AntecedenciaInsuficienteException();
+        }
+    }
 }

@@ -1,14 +1,12 @@
 package net.val.api.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.SneakyThrows;
+import net.val.api.domain.Endereco;
+import net.val.api.domain.Medico;
 import net.val.api.dtos.medicoDto.DadosAtualizacaoMedico;
 import net.val.api.dtos.medicoDto.DadosCadastraisMedico;
 import net.val.api.dtos.medicoDto.DadosDetalhamentoMedico;
 import net.val.api.dtos.medicoDto.DadosListagemMedico;
-import net.val.api.domain.Endereco;
-import net.val.api.domain.Medico;
-import net.val.api.infra.exceptions.medicoExceptions.MedicoInativoException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoNaoEncontradoException;
 import net.val.api.repositorys.MedicoRepository;
 import org.springframework.data.domain.Page;

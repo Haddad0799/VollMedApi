@@ -1,5 +1,7 @@
 package net.val.api.domain;
 
+import net.val.api.infra.exceptions.ufExceptions.UfInvalidaException;
+
 public enum UF {
     AC("AC"),
     AL("AL"),
@@ -35,12 +37,12 @@ public enum UF {
         this.ufString = ufString;
     }
 
-    public static UF fromString(String text) {
+    public static UF fromUf(String text) {
         for (UF uf : UF.values()) {
             if (uf.ufString.equalsIgnoreCase(text)) {
                 return uf;
             }
         }
-        throw new IllegalArgumentException("Nenhuma UF encontrada: " + text);
+        throw new UfInvalidaException(text);
     }
 }

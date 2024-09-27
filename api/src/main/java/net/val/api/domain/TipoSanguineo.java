@@ -1,6 +1,7 @@
 package net.val.api.domain;
 
 import lombok.Getter;
+import net.val.api.infra.exceptions.tipoSanguineoExceptions.TipoSanguineoInvalidoException;
 
 @Getter
 public enum TipoSanguineo {
@@ -19,12 +20,12 @@ public enum TipoSanguineo {
         this.descricao = descricao;
     }
 
-    public static TipoSanguineo fromDescricao(String descricao) {
+    public static TipoSanguineo fromTipo(String descricao) {
         for (TipoSanguineo tipo : TipoSanguineo.values()) {
             if (tipo.getDescricao().equalsIgnoreCase(descricao)) {
                 return tipo;
             }
         }
-        throw new IllegalArgumentException("Tipo sanguíneo inválido: " + descricao);
+        throw new TipoSanguineoInvalidoException( descricao);
     }
 }

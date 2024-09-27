@@ -4,12 +4,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import net.val.api.domain.ApiErro;
 import net.val.api.infra.exceptions.autenticacaoExceptions.UsuarioNaoEncontradoException;
 import net.val.api.infra.exceptions.consultaExceptions.*;
+import net.val.api.infra.exceptions.especialidadeExceptions.EspecialidadeInvalidaException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoInativoException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoNaoEncontradoException;
 import net.val.api.infra.exceptions.pacienteExceptions.PacienteNaoEncontradoException;
+import net.val.api.infra.exceptions.tipoSanguineoExceptions.TipoSanguineoInvalidoException;
 import net.val.api.infra.exceptions.tokenExceptions.FalhaAoGerarTokenException;
 import net.val.api.infra.exceptions.tokenExceptions.InvalidTokenException;
 import net.val.api.infra.exceptions.tokenExceptions.TokenNotProvidedException;
+import net.val.api.infra.exceptions.ufExceptions.UfInvalidaException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -92,6 +95,31 @@ public class TratadorDeErros {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiErro> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, HttpServletRequest request) {
+
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(AntecedenciaInsuficienteException.class)
+    public ResponseEntity<ApiErro> handleAntecedenciaInsuficienteException(AntecedenciaInsuficienteException ex, HttpServletRequest request) {
+
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
+
+    @ExceptionHandler(UfInvalidaException.class)
+    public ResponseEntity<ApiErro> handleUfInvalidaException(UfInvalidaException ex, HttpServletRequest request) {
+
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(TipoSanguineoInvalidoException.class)
+    public ResponseEntity<ApiErro> handleTipoSanguineoInvalidoException(TipoSanguineoInvalidoException ex, HttpServletRequest request) {
+
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(EspecialidadeInvalidaException.class)
+    public ResponseEntity<ApiErro> handleEspecialidadeInvalidaException(EspecialidadeInvalidaException ex, HttpServletRequest request) {
 
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
     }

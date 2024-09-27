@@ -4,10 +4,7 @@ import net.val.api.domain.Consulta;
 import net.val.api.domain.Medico;
 import net.val.api.domain.Paciente;
 import net.val.api.dtos.consultaDto.DadosAgendamentoConsulta;
-import net.val.api.infra.exceptions.consultaExceptions.ConflitoDeHorarioMedicoException;
-import net.val.api.infra.exceptions.consultaExceptions.ConflitoDeHorarioPacienteException;
-import net.val.api.infra.exceptions.consultaExceptions.HorarioInvalidoConsultaException;
-import net.val.api.infra.exceptions.consultaExceptions.PacienteComConsultaDuplicadaException;
+import net.val.api.infra.exceptions.consultaExceptions.*;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoInativoException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoNaoEncontradoException;
 import net.val.api.infra.exceptions.pacienteExceptions.PacienteNaoEncontradoException;
@@ -15,12 +12,14 @@ import net.val.api.repositorys.ConsultaRepository;
 import net.val.api.repositorys.MedicoRepository;
 import net.val.api.repositorys.PacienteRepository;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 
 @Service
 public class ConsultaService {
@@ -38,36 +37,38 @@ public class ConsultaService {
 
     @Transactional
     public Consulta agendarConsulta(DadosAgendamentoConsulta agendamentoConsulta) {
-        // Buscar o médico
-        Medico medico = medicoRepository.findById(agendamentoConsulta.medicoId())
-                .orElseThrow(() -> new MedicoNaoEncontradoException(agendamentoConsulta.medicoId()));
 
-        // Buscar o paciente
-        Paciente paciente = pacienteRepository.findById(agendamentoConsulta.pacienteId())
-                .orElseThrow(() -> new PacienteNaoEncontradoException(agendamentoConsulta.pacienteId()));
+            // Buscar o médico
+            Medico medico = medicoRepository.findById(agendamentoConsulta.medicoId())
+                    .orElseThrow(() -> new MedicoNaoEncontradoException(agendamentoConsulta.medicoId()));
 
-        // Validar o estado do médico
-        if (!medico.isAtivo()) {
-            throw new MedicoInativoException(medico.getId());
-        }
+            // Buscar o paciente
+            Paciente paciente = pacienteRepository.findById(agendamentoConsulta.pacienteId())
+                    .orElseThrow(() -> new PacienteNaoEncontradoException(agendamentoConsulta.pacienteId()));
 
-        // Validar a data/hora da consulta
-        LocalDateTime dataConsulta = agendamentoConsulta.dataConsulta();
-        if (!dataIsValid(dataConsulta)) {
-            throw new HorarioInvalidoConsultaException();
-        }
+            // Validar o estado do médico
+            if (!medico.isAtivo()) {
+                throw new MedicoInativoException(medico.getId());
+            }
 
-        // Verificar conflitos de horário
-         verificarConflitoDeHorario(paciente.getId(), medico.getId(), dataConsulta);
+            // Validar a data/hora da consulta
+            LocalDateTime dataConsulta = agendamentoConsulta.dataConsulta();
+            if (!dataIsValid(dataConsulta)) {
+                throw new HorarioInvalidoConsultaException();
+            }
 
-        // Criar e salvar a consulta
-        Consulta consulta = new Consulta(agendamentoConsulta, medico, paciente);
-        consultaRepository.save(consulta);
+            // Verificar conflitos de horário
+            verificarConflitoDeHorario(paciente.getId(), medico.getId(), dataConsulta);
 
-        return consulta;
+            // Criar e salvar a consulta
+            Consulta consulta = new Consulta(agendamentoConsulta, medico, paciente);
+            consultaRepository.save(consulta);
+
+            return consulta;
     }
 
     private boolean dataIsValid(LocalDateTime data) {
+
         DayOfWeek diaDaSemana = data.getDayOfWeek();
         LocalTime hora = data.toLocalTime();
 

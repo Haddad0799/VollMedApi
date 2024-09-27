@@ -3,10 +3,7 @@ package net.val.api.infra.exceptions;
 import jakarta.servlet.http.HttpServletRequest;
 import net.val.api.domain.ApiErro;
 import net.val.api.infra.exceptions.autenticacaoExceptions.UsuarioNaoEncontradoException;
-import net.val.api.infra.exceptions.consultaExceptions.ConflitoDeHorarioMedicoException;
-import net.val.api.infra.exceptions.consultaExceptions.ConflitoDeHorarioPacienteException;
-import net.val.api.infra.exceptions.consultaExceptions.HorarioInvalidoConsultaException;
-import net.val.api.infra.exceptions.consultaExceptions.PacienteComConsultaDuplicadaException;
+import net.val.api.infra.exceptions.consultaExceptions.*;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoInativoException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoNaoEncontradoException;
 import net.val.api.infra.exceptions.pacienteExceptions.PacienteNaoEncontradoException;
@@ -15,6 +12,7 @@ import net.val.api.infra.exceptions.tokenExceptions.InvalidTokenException;
 import net.val.api.infra.exceptions.tokenExceptions.TokenNotProvidedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -88,6 +86,13 @@ public class TratadorDeErros {
 
     @ExceptionHandler(ConflitoDeHorarioPacienteException.class)
     public ResponseEntity<ApiErro> handleConflitoDeHorarioPacienteException(ConflitoDeHorarioPacienteException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiErro> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, HttpServletRequest request) {
+
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
     }
 

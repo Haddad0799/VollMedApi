@@ -4,6 +4,7 @@ import net.val.api.domain.Usuario;
 import net.val.api.dtos.autenticacaoDto.DadosAutenticacao;
 import net.val.api.dtos.tokenDto.DadosTokenJwt;
 import net.val.api.infra.exceptions.autenticacaoExceptions.UsuarioNaoEncontradoException;
+import net.val.api.infra.exceptions.tokenExceptions.FalhaAoGerarTokenException;
 import net.val.api.repositorys.UsuarioRepository;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,11 +36,11 @@ public class AutenticacaoService implements UserDetailsService {
     }
 
     public DadosTokenJwt efetuarLogin(DadosAutenticacao autenticacao) {
-        var token = new UsernamePasswordAuthenticationToken(autenticacao.login(), autenticacao.senha());
-        var autenticado = manager.authenticate(token);
 
-        return new DadosTokenJwt(tokenService.gerarToken((Usuario) autenticado.getPrincipal()));
+            var token = new UsernamePasswordAuthenticationToken(autenticacao.login(), autenticacao.senha());
+            var autenticado = manager.authenticate(token);
 
+            return new DadosTokenJwt(tokenService.gerarToken((Usuario) autenticado.getPrincipal()));
     }
 }
 

@@ -24,6 +24,10 @@ public class Usuario implements UserDetails {
     private String senha;
     private String login;
 
+    public Usuario(String login, String senha) {
+        this.login = login;
+        this.senha = senha;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

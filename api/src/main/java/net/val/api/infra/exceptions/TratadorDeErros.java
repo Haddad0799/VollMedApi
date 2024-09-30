@@ -13,11 +13,13 @@ import net.val.api.infra.exceptions.tokenExceptions.FalhaAoGerarTokenException;
 import net.val.api.infra.exceptions.tokenExceptions.InvalidTokenException;
 import net.val.api.infra.exceptions.tokenExceptions.TokenNotProvidedException;
 import net.val.api.infra.exceptions.ufExceptions.UfInvalidaException;
+import net.val.api.infra.exceptions.usuarioException.LoginJaUtilizadoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -53,7 +55,8 @@ public class TratadorDeErros {
             TipoSanguineoInvalidoException.class,
             EspecialidadeInvalidaException.class,
             AntecedenciaInsuficienteException.class,
-            HttpMessageNotReadableException.class
+            HttpMessageNotReadableException.class,
+            LoginJaUtilizadoException.class
     })
     public ResponseEntity<ApiErro> handleBadRequestExceptions(RuntimeException ex, HttpServletRequest request) {
         logger.error("Erro BAD_REQUEST: {}", ex.getMessage());
@@ -76,6 +79,7 @@ public class TratadorDeErros {
             MedicoNaoEncontradoException.class,
             PacienteNaoEncontradoException.class,
             UsuarioNaoEncontradoException.class,
+            InternalAuthenticationServiceException.class
     })
     public ResponseEntity<ApiErro> handleNotFoundExceptions(RuntimeException ex, HttpServletRequest request) {
         logger.error("Erro NOT_FOUND: {}", ex.getMessage());
@@ -102,4 +106,5 @@ public class TratadorDeErros {
         logger.error("Erro inesperado: {}", ex.getMessage(), ex);
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Ocorreu um erro inesperado.", request);
     }
+    
 }

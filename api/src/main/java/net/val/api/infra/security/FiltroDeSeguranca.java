@@ -7,7 +7,7 @@ import lombok.SneakyThrows;
 import net.val.api.infra.exceptions.tokenExceptions.InvalidTokenException;
 import net.val.api.infra.exceptions.tokenExceptions.TokenNotProvidedException;
 import net.val.api.repositorys.UsuarioRepository;
-import net.val.api.service.TokenService;
+import net.val.api.dtos.service.TokenService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;

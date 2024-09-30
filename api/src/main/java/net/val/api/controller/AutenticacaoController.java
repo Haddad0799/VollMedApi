@@ -3,7 +3,7 @@ package net.val.api.controller;
 import jakarta.validation.Valid;
 import net.val.api.dtos.autenticacaoDto.DadosAutenticacao;
 import net.val.api.dtos.tokenDto.DadosTokenJwt;
-import net.val.api.service.AutenticacaoService;
+import net.val.api.dtos.service.AutenticacaoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

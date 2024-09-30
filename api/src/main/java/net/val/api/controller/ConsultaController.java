@@ -5,7 +5,7 @@ import lombok.Getter;
 import net.val.api.domain.Consulta;
 import net.val.api.dtos.consultaDto.DadosAgendamentoConsulta;
 import net.val.api.dtos.consultaDto.DadosDetalhamentoConsulta;
-import net.val.api.service.ConsultaService;
+import net.val.api.dtos.service.ConsultaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

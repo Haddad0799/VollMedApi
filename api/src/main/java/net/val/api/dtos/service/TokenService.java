@@ -1,4 +1,4 @@
-package net.val.api.service;
+package net.val.api.dtos.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;

@@ -6,7 +6,7 @@ import net.val.api.dtos.medicoDto.DadosCadastraisMedico;
 import net.val.api.dtos.medicoDto.DadosListagemMedico;
 import net.val.api.dtos.medicoDto.DadosDetalhamentoMedico;
 import net.val.api.domain.Medico;
-import net.val.api.service.MedicoService;
+import net.val.api.dtos.service.MedicoService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;

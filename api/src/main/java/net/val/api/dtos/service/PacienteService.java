@@ -1,4 +1,4 @@
-package net.val.api.service;
+package net.val.api.dtos.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.SneakyThrows;

@@ -2,7 +2,7 @@ package net.val.api.controller;
 
 import jakarta.validation.Valid;
 import net.val.api.dtos.usuarioDto.DadosCadastroUsuario;
-import net.val.api.service.UsuarioService;
+import net.val.api.dtos.service.UsuarioService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

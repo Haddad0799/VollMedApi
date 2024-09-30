@@ -1,4 +1,4 @@
-package net.val.api.service;
+package net.val.api.dtos.service;
 
 import net.val.api.domain.Consulta;
 import net.val.api.domain.Especialidade;

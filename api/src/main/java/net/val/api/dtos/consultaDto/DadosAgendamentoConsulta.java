@@ -22,7 +22,7 @@ public record DadosAgendamentoConsulta(
         @JsonAlias("data_Consulta")
         LocalDateTime dataConsulta,
 
-        @NotNull
+
         @JsonAlias("medico_Especialidade")
         String especialidadeMedica
         ) {

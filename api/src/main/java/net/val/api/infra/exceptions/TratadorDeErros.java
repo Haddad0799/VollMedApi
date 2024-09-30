@@ -5,6 +5,7 @@ import net.val.api.domain.ApiErro;
 import net.val.api.infra.exceptions.autenticacaoExceptions.UsuarioNaoEncontradoException;
 import net.val.api.infra.exceptions.consultaExceptions.*;
 import net.val.api.infra.exceptions.especialidadeExceptions.EspecialidadeInvalidaException;
+import net.val.api.infra.exceptions.especialidadeExceptions.EspecialidadeNulaException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoInativoException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoNaoEncontradoException;
 import net.val.api.infra.exceptions.pacienteExceptions.PacienteNaoEncontradoException;
@@ -56,7 +57,8 @@ public class TratadorDeErros {
             EspecialidadeInvalidaException.class,
             AntecedenciaInsuficienteException.class,
             HttpMessageNotReadableException.class,
-            LoginJaUtilizadoException.class
+            LoginJaUtilizadoException.class,
+            EspecialidadeNulaException.class
     })
     public ResponseEntity<ApiErro> handleBadRequestExceptions(RuntimeException ex, HttpServletRequest request) {
         logger.error("Erro BAD_REQUEST: {}", ex.getMessage());

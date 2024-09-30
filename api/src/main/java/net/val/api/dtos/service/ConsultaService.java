@@ -6,6 +6,7 @@ import net.val.api.domain.Medico;
 import net.val.api.domain.Paciente;
 import net.val.api.dtos.consultaDto.DadosAgendamentoConsulta;
 import net.val.api.infra.exceptions.consultaExceptions.*;
+import net.val.api.infra.exceptions.especialidadeExceptions.EspecialidadeNulaException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoInativoException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoNaoEncontradoException;
 import net.val.api.infra.exceptions.pacienteExceptions.PacienteNaoEncontradoException;
@@ -62,6 +63,9 @@ public class ConsultaService {
 
     private Medico selecionarMedico(DadosAgendamentoConsulta agendamentoConsulta) {
         if (agendamentoConsulta.medicoId() == null) {
+            if (agendamentoConsulta.especialidadeMedica() == null){
+                throw new EspecialidadeNulaException();
+            }
             Optional<Medico> medicoAleatorio = medicoRepository.medicoAletorio(Especialidade.fromEspecialidade(agendamentoConsulta.especialidadeMedica()));
 
             return medicoAleatorio.orElseThrow(() -> new MedicoNaoEncontradoException(Especialidade.fromEspecialidade(agendamentoConsulta.especialidadeMedica())));

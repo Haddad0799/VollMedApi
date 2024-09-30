@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -18,7 +17,5 @@ public interface MedicoRepository extends JpaRepository<Medico, Long> {
 
     @Query("select m from Medico m where m.ativo = true and m.especialidade = :especialidade order by function('RAND')")
     Optional<Medico> medicoAletorio(Especialidade especialidade);
-
-    Optional<Medico> findByIdAndAndEspecialidade(Long medicoId, Especialidade especialidade);
 
 }

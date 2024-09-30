@@ -1,10 +1,8 @@
 package net.val.api.dtos.service;
 
-import net.val.api.domain.Consulta;
-import net.val.api.domain.Especialidade;
-import net.val.api.domain.Medico;
-import net.val.api.domain.Paciente;
+import net.val.api.domain.*;
 import net.val.api.dtos.consultaDto.DadosAgendamentoConsulta;
+import net.val.api.dtos.consultaDto.DadosDetalhamentoConsulta;
 import net.val.api.infra.exceptions.consultaExceptions.*;
 import net.val.api.infra.exceptions.especialidadeExceptions.EspecialidadeNulaException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoInativoException;
@@ -14,6 +12,8 @@ import net.val.api.repositorys.ConsultaRepository;
 import net.val.api.repositorys.MedicoRepository;
 import net.val.api.repositorys.PacienteRepository;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,6 +58,7 @@ public class ConsultaService {
 
         // Criar e salvar a consulta
         Consulta consulta = new Consulta(agendamentoConsulta, medico, paciente);
+
         return consultaRepository.save(consulta);
     }
 
@@ -66,12 +67,13 @@ public class ConsultaService {
             if (agendamentoConsulta.especialidadeMedica() == null){
                 throw new EspecialidadeNulaException();
             }
+
             Optional<Medico> medicoAleatorio = medicoRepository.medicoAletorio(Especialidade.fromEspecialidade(agendamentoConsulta.especialidadeMedica()));
 
             return medicoAleatorio.orElseThrow(() -> new MedicoNaoEncontradoException(Especialidade.fromEspecialidade(agendamentoConsulta.especialidadeMedica())));
         }
 
-        Medico medico = medicoRepository.findByIdAndAndEspecialidade(agendamentoConsulta.medicoId(), Especialidade.fromEspecialidade(agendamentoConsulta.especialidadeMedica()))
+        Medico medico = medicoRepository.findById(agendamentoConsulta.medicoId())
                 .orElseThrow(() -> new MedicoNaoEncontradoException(agendamentoConsulta.medicoId()));
 
         if (!medico.isAtivo()) {
@@ -110,7 +112,7 @@ public class ConsultaService {
         }
 
         // Verificar se o paciente já tem outra consulta no mesmo dia com o mesmo médico.
-        if (consultaRepository.existsByPacienteIdAndMedicoIdAndDataConsulta(pacienteId, medicoId, dataConsulta.toLocalDate())) {
+        if (consultaRepository.existsByPacienteIdAndMedicoIdAndDataConsulta(pacienteId, medicoId, inicioConsulta,fimConsulta)) {
             throw new PacienteComConsultaDuplicadaException(pacienteId, dataConsulta);
         }
     }
@@ -123,4 +125,25 @@ public class ConsultaService {
             throw new AntecedenciaInsuficienteException();
         }
     }
+
+    @Transactional
+    public void CancelarConsulta(Long consultaId) {
+        Optional<Consulta> consultaOptional = consultaRepository.findById(consultaId);
+
+        if(consultaOptional.isEmpty()) {
+            throw new ConsultaNaoEncontrada(consultaId);
+        }
+
+        Consulta consulta = consultaOptional.get();
+
+        consulta.setStatus(StatusConsulta.CANCELADA);
+
+        consultaRepository.save(consulta);
+
+    }
+    public Page<DadosDetalhamentoConsulta> listarConsultas(Pageable pageable) {
+        return consultaRepository.findAllAgendadas(pageable).map(consulta -> new DadosDetalhamentoConsulta(consulta.getId(),consulta.getMedico(),consulta.getPaciente(),consulta.getDataConsulta(),consulta.getEspecialidadeMedica()));
+
+    }
+
 }

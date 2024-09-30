@@ -27,6 +27,7 @@ public class Consulta {
     private LocalDateTime dataConsulta;
 
     @Enumerated(EnumType.STRING)
+    @Setter
     private Especialidade especialidadeMedica;
 
     @Enumerated(EnumType.STRING)
@@ -37,7 +38,11 @@ public class Consulta {
         this.paciente = paciente;
         this.medico = medico;
         this.dataConsulta = dadosAgendamentoConsulta.dataConsulta();
-        this.especialidadeMedica = Especialidade.fromEspecialidade(dadosAgendamentoConsulta.especialidadeMedica());
+        if (dadosAgendamentoConsulta.especialidadeMedica() == null) {
+            this.setEspecialidadeMedica(medico.getEspecialidade());
+        } else {
+            this.especialidadeMedica = Especialidade.fromEspecialidade(dadosAgendamentoConsulta.especialidadeMedica());
+        }
         this.status = StatusConsulta.AGENDADA;
     }
 }

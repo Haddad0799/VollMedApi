@@ -58,7 +58,8 @@ public class TratadorDeErros {
             AntecedenciaInsuficienteException.class,
             HttpMessageNotReadableException.class,
             LoginJaUtilizadoException.class,
-            EspecialidadeNulaException.class
+            EspecialidadeNulaException.class,
+            ConsultaNaoEncontrada.class
     })
     public ResponseEntity<ApiErro> handleBadRequestExceptions(RuntimeException ex, HttpServletRequest request) {
         logger.error("Erro BAD_REQUEST: {}", ex.getMessage());

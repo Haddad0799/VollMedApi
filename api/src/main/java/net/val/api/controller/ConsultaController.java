@@ -6,11 +6,10 @@ import net.val.api.domain.Consulta;
 import net.val.api.dtos.consultaDto.DadosAgendamentoConsulta;
 import net.val.api.dtos.consultaDto.DadosDetalhamentoConsulta;
 import net.val.api.dtos.service.ConsultaService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Getter
@@ -31,6 +30,18 @@ public class ConsultaController {
         var uri = builder.path("/consultas/{id}").buildAndExpand(consulta.getId()).toUri();
 
         return ResponseEntity.created(uri).body(new DadosDetalhamentoConsulta(consulta, consulta.getMedico(),consulta.getPaciente()));
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> cancelar(@PathVariable Long id) {
+        consultaService.CancelarConsulta(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<DadosDetalhamentoConsulta>> listarConsultas(Pageable pageable) {
+        return ResponseEntity.ok(consultaService.listarConsultas(pageable));
     }
 
 }

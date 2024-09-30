@@ -11,12 +11,13 @@ import java.time.LocalDateTime;
 
 public record DadosDetalhamentoConsulta(
         Long idConsulta,
-        DadosConsultaMedico medico,
-        DadosConsultaPaciente paciente,
+        Medico medico,
+        Paciente paciente,
         LocalDateTime dataConsulta,
         Especialidade especialidadeMedica
 ) {
     public DadosDetalhamentoConsulta (Consulta consulta, Medico medico, Paciente paciente){
-        this(consulta.getId(), new DadosConsultaMedico(medico),new DadosConsultaPaciente(paciente),consulta.getDataConsulta(),consulta.getEspecialidadeMedica());
+        this(consulta.getId(),medico,paciente,consulta.getDataConsulta(),consulta.getEspecialidadeMedica());
     }
+
 }

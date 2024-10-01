@@ -1,3 +1,0 @@
-ALTER TABLE medicos
-    ADD ativo BOOLEAN NOT NULL DEFAULT false;
-

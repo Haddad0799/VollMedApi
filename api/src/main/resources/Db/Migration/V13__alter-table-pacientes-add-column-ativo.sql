@@ -1,3 +1,0 @@
-ALTER TABLE pacientes ADD COLUMN ativo BOOLEAN DEFAULT TRUE;
-
-UPDATE pacientes SET ativo = TRUE WHERE ativo IS NULL;

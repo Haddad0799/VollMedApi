@@ -47,13 +47,6 @@ public class ConsultaService {
 
     @Transactional
     public Consulta agendarConsulta(DadosAgendamentoConsulta agendamentoConsulta) {
-        garantirAntecedencia(agendamentoConsulta.dataConsulta());
-
-        // Validar a data/hora da consulta
-        LocalDateTime dataConsulta = agendamentoConsulta.dataConsulta();
-        if (!dataIsValid(dataConsulta)) {
-            throw new HorarioInvalidoConsultaException();
-        }
 
         // Buscar o paciente
         Paciente paciente = pacienteRepository.findById(agendamentoConsulta.pacienteId())
@@ -61,8 +54,6 @@ public class ConsultaService {
 
         Medico medico = selecionarMedico(agendamentoConsulta);
 
-        // Verificar conflitos de horário antes de criar a consulta
-        verificarConflitoDeHorario(paciente.getId(), medico.getId(), dataConsulta);
 
         // Criar e salvar a consulta
         Consulta consulta = new Consulta(agendamentoConsulta, medico, paciente);
@@ -91,18 +82,6 @@ public class ConsultaService {
         return medico;
     }
 
-    private boolean dataIsValid(LocalDateTime data) {
-        DayOfWeek diaDaSemana = data.getDayOfWeek();
-        LocalTime hora = data.toLocalTime();
-
-        if (diaDaSemana == DayOfWeek.SUNDAY) {
-            return false; // Domingo não é um dia válido
-        }
-
-        return (diaDaSemana.getValue() >= DayOfWeek.MONDAY.getValue() &&
-                diaDaSemana.getValue() <= DayOfWeek.SATURDAY.getValue()) &&
-                !hora.isBefore(LocalTime.of(8, 0)) && !hora.isAfter(LocalTime.of(19, 0)); // Horário de funcionamento
-    }
 
     private void verificarConflitoDeHorario(Long pacienteId, Long medicoId, LocalDateTime dataConsulta) {
         // Definir o início e o fim do intervalo de 60 minutos
@@ -125,14 +104,6 @@ public class ConsultaService {
         }
     }
 
-    private void garantirAntecedencia(LocalDateTime dataConsulta) {
-        LocalDateTime agora = LocalDateTime.now();
-        long minutosDeAntecedencia = Duration.between(agora, dataConsulta).toMinutes();
-
-        if (minutosDeAntecedencia <= 30) {
-            throw new AntecedenciaInsuficienteException();
-        }
-    }
 
     @Transactional
     public void CancelarConsulta(Long consultaId) {

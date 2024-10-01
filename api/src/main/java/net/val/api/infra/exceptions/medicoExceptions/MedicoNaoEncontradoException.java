@@ -1,6 +1,6 @@
 package net.val.api.infra.exceptions.medicoExceptions;
 
-import net.val.api.domain.Especialidade;
+import net.val.api.medico.enums.Especialidade;
 
 public class MedicoNaoEncontradoException extends RuntimeException {
     public MedicoNaoEncontradoException(Long id) {

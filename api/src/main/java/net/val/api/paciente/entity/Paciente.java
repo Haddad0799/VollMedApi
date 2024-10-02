@@ -28,7 +28,8 @@ public class Paciente {
     @Setter
     @Column(unique = true)
     private String telefone;
-    @Embedded
+    @OneToOne
+    @JoinColumn(name = "endereco_id")
     @Setter
     private Endereco endereco;
     @Enumerated(EnumType.STRING)

@@ -29,7 +29,8 @@ public class Medico {
     @Enumerated(EnumType.STRING)
     private Especialidade especialidade;
 
-    @Embedded
+    @OneToOne
+    @JoinColumn(name = "endereco_id")
     @Setter
     private Endereco endereco;
 

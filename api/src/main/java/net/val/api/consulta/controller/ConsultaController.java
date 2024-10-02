@@ -5,7 +5,7 @@ import lombok.Getter;
 import net.val.api.consulta.entity.Consulta;
 import net.val.api.consulta.dtos.DadosAgendamentoConsulta;
 import net.val.api.consulta.dtos.DadosDetalhamentoConsulta;
-import net.val.api.consulta.service.agendarConsulta.ConsultaService;
+import net.val.api.consulta.service.agendarConsulta.AgendarConsultaService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +17,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequestMapping("consultas")
 public class ConsultaController {
 
-    private final ConsultaService consultaService;
+    private final AgendarConsultaService consultaService;
 
-    public ConsultaController(ConsultaService consultaService) {
+    public ConsultaController(AgendarConsultaService consultaService) {
         this.consultaService = consultaService;
     }
 

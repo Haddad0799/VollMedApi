@@ -1,17 +1,24 @@
 package net.val.api.endereco.entity;
 
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.val.api.endereco.enums.UF;
 import net.val.api.endereco.dtos.DadosEndereco;
 
 @Getter
 @Setter
-@Embeddable
+@Entity
+@Table(name = "enderecos")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Endereco {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
     private String logradouro;
     private int numero;
     private String complemento;
@@ -56,9 +63,6 @@ public class Endereco {
             endereco.setCep(dadosEndereco.cep());
         }
     }
-
-
-    public Endereco() {}
 
     @Override
     public String toString() {

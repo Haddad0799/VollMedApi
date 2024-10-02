@@ -1,19 +1,16 @@
 package net.val.api.consulta.service.agendarConsulta;
 
-import net.val.api.consulta.enums.StatusConsulta;
-import net.val.api.infra.exceptions.consultaExceptions.AntecedenciaInsuficienteException;
-import net.val.api.infra.exceptions.consultaExceptions.ConflitoDeHorarioMedicoException;
-import net.val.api.infra.exceptions.consultaExceptions.ConflitoDeHorarioPacienteException;
-import net.val.api.infra.exceptions.consultaExceptions.ConsultaNaoEncontrada;
-import net.val.api.consulta.entity.Consulta;
 import net.val.api.consulta.dtos.DadosAgendamentoConsulta;
 import net.val.api.consulta.dtos.DadosDetalhamentoConsulta;
-import net.val.api.infra.exceptions.consultaExceptions.*;
+import net.val.api.consulta.entity.Consulta;
+import net.val.api.consulta.enums.StatusConsulta;
+import net.val.api.consulta.repository.ConsultaRepository;
+import net.val.api.consulta.service.validacoes.ValidarAgendamentoConsulta;
+import net.val.api.infra.exceptions.consultaExceptions.ConsultaNaoEncontrada;
 import net.val.api.infra.exceptions.especialidadeExceptions.EspecialidadeNulaException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoInativoException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoNaoEncontradoException;
 import net.val.api.infra.exceptions.pacienteExceptions.PacienteNaoEncontradoException;
-import net.val.api.consulta.repository.ConsultaRepository;
 import net.val.api.medico.entity.Medico;
 import net.val.api.medico.enums.Especialidade;
 import net.val.api.medico.repository.MedicoRepository;
@@ -25,35 +22,42 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ConsultaService {
+public class AgendarConsultaService {
     private final ConsultaRepository consultaRepository;
     private final MedicoRepository medicoRepository;
     private final PacienteRepository pacienteRepository;
+    private final List<ValidarAgendamentoConsulta> validacoesAgendamentoConsulta;
 
-    public ConsultaService(@Lazy ConsultaRepository consultaRepository,
-                           @Lazy MedicoRepository medicoRepository,
-                           @Lazy PacienteRepository pacienteRepository) {
+    public AgendarConsultaService(@Lazy ConsultaRepository consultaRepository,
+                                  @Lazy MedicoRepository medicoRepository,
+                                  @Lazy PacienteRepository pacienteRepository, List<ValidarAgendamentoConsulta> validacoesAgendamentoConsulta) {
         this.consultaRepository = consultaRepository;
         this.medicoRepository = medicoRepository;
         this.pacienteRepository = pacienteRepository;
+        this.validacoesAgendamentoConsulta = validacoesAgendamentoConsulta;
     }
 
     @Transactional
     public Consulta agendarConsulta(DadosAgendamentoConsulta agendamentoConsulta) {
 
-        // Buscar o paciente
-        Paciente paciente = pacienteRepository.findById(agendamentoConsulta.pacienteId())
-                .orElseThrow(() -> new PacienteNaoEncontradoException(agendamentoConsulta.pacienteId()));
+        if(!pacienteRepository.existsById(agendamentoConsulta.pacienteId())) {
+            throw new PacienteNaoEncontradoException(agendamentoConsulta.pacienteId());
+        }
+
+        if(agendamentoConsulta.medicoId() != null && !medicoRepository.existsById(agendamentoConsulta.medicoId())) {
+            throw new MedicoNaoEncontradoException(agendamentoConsulta.medicoId());
+        }
+
+        //Validações de consulta.
+        validacoesAgendamentoConsulta.forEach(v -> v.validar(agendamentoConsulta));
+
+        Paciente paciente = pacienteRepository.getReferenceById(agendamentoConsulta.pacienteId());
 
         Medico medico = selecionarMedico(agendamentoConsulta);
-
 
         // Criar e salvar a consulta
         Consulta consulta = new Consulta(agendamentoConsulta, medico, paciente);
@@ -81,29 +85,6 @@ public class ConsultaService {
 
         return medico;
     }
-
-
-    private void verificarConflitoDeHorario(Long pacienteId, Long medicoId, LocalDateTime dataConsulta) {
-        // Definir o início e o fim do intervalo de 60 minutos
-        LocalDateTime inicioConsulta = dataConsulta.minusMinutes(59);
-        LocalDateTime fimConsulta = dataConsulta.plusMinutes(59);
-
-        // Verificar se há conflito de horário para o médico
-        if (consultaRepository.existsByMedicoIdAndDataConsultaBetween(medicoId, inicioConsulta, fimConsulta)) {
-            throw new ConflitoDeHorarioMedicoException(dataConsulta, medicoId);
-        }
-
-        // Verificar se há conflito de horário para o paciente
-        if (consultaRepository.existsByPacienteIdAndDataConsultaBetween(pacienteId, inicioConsulta, fimConsulta)) {
-            throw new ConflitoDeHorarioPacienteException(dataConsulta);
-        }
-
-        // Verificar se o paciente já tem outra consulta no mesmo dia com o mesmo médico.
-        if (consultaRepository.existsByPacienteIdAndMedicoIdAndDataConsulta(pacienteId, medicoId, inicioConsulta,fimConsulta)) {
-            throw new PacienteComConsultaDuplicadaException(pacienteId, dataConsulta);
-        }
-    }
-
 
     @Transactional
     public void CancelarConsulta(Long consultaId) {

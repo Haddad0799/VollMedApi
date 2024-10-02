@@ -3,6 +3,7 @@ package net.val.api.paciente.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import net.val.api.endereco.entity.Endereco;
+import net.val.api.endereco.repository.EnderecoRepository;
 import net.val.api.paciente.enums.TipoSanguineo;
 import net.val.api.paciente.dtos.DadosCadastraisPaciente;
 
@@ -43,11 +44,11 @@ public class Paciente {
     private boolean ativo;
 
 
-    public Paciente(DadosCadastraisPaciente dadosCadastraisPaciente) {
+    public Paciente(DadosCadastraisPaciente dadosCadastraisPaciente, EnderecoRepository enderecoRepository) {
         this.nome = dadosCadastraisPaciente.nome();
         this.cpf = dadosCadastraisPaciente.cpf();
         this.telefone = dadosCadastraisPaciente.telefone();
-        this.endereco = new Endereco(dadosCadastraisPaciente.endereco());
+        this.endereco = enderecoRepository.save(new Endereco(dadosCadastraisPaciente.endereco()));
         this.tipoSanguineo = TipoSanguineo.fromTipo(dadosCadastraisPaciente.tipoSanguineo());
         this.dataNasc = dadosCadastraisPaciente.dataNasc();
         this.peso = dadosCadastraisPaciente.peso();

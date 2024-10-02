@@ -18,8 +18,8 @@ public class ValidarConflitoDeHorarioPaciente implements ValidarAgendamentoConsu
 
     @Override
     public void validar(DadosAgendamentoConsulta dadosAgendamentoConsulta) {
-        LocalDateTime inicioConsulta = dadosAgendamentoConsulta.dataConsulta().minusMinutes(59);
-        LocalDateTime fimConsulta = dadosAgendamentoConsulta.dataConsulta().minusMinutes(59);
+        LocalDateTime inicioConsulta = dadosAgendamentoConsulta.dataConsulta();
+        LocalDateTime fimConsulta = inicioConsulta.plusHours(1);
 
         // Verificar se há conflito de horário para o Paciente
         if (consultaRepository.existsByPacienteIdAndDataConsultaBetween(dadosAgendamentoConsulta.pacienteId(), inicioConsulta, fimConsulta)) {

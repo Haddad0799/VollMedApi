@@ -19,11 +19,9 @@ public class ValidarConsultaDuplicada implements ValidarAgendamentoConsulta {
     @Override
     public void validar(DadosAgendamentoConsulta dadosAgendamentoConsulta) {
 
-        LocalDateTime inicioConsulta = dadosAgendamentoConsulta.dataConsulta().minusMinutes(59);
-        LocalDateTime fimConsulta = dadosAgendamentoConsulta.dataConsulta().minusMinutes(59);
+        LocalDateTime dataconsulta = dadosAgendamentoConsulta.dataConsulta();
 
-
-        if (consultaRepository.existsByPacienteIdAndMedicoIdAndDataConsulta(dadosAgendamentoConsulta.pacienteId(), dadosAgendamentoConsulta.medicoId(), inicioConsulta, fimConsulta)) {
+        if (consultaRepository.existsByPacienteIdAndMedicoIdAndDataConsultaNoMesmoDia(dadosAgendamentoConsulta.pacienteId(), dadosAgendamentoConsulta.medicoId(),dataconsulta)) {
             throw new PacienteComConsultaDuplicadaException(dadosAgendamentoConsulta.pacienteId(), dadosAgendamentoConsulta.dataConsulta());
         }
     }

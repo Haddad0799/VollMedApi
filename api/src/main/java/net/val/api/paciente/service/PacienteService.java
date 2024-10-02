@@ -1,6 +1,7 @@
 package net.val.api.paciente.service;
 
 import lombok.SneakyThrows;
+import net.val.api.endereco.repository.EnderecoRepository;
 import net.val.api.paciente.dtos.DadosAtualizacaoPaciente;
 import net.val.api.paciente.dtos.DadosCadastraisPaciente;
 import net.val.api.paciente.dtos.DadosDetalhamentoPaciente;
@@ -21,13 +22,15 @@ import java.util.Optional;
 public class PacienteService {
 
         private final PacienteRepository pacienteRepository;
+        private final EnderecoRepository enderecoRepository;
 
-    public PacienteService(PacienteRepository pacienteRepository) {
+    public PacienteService(PacienteRepository pacienteRepository, EnderecoRepository enderecoRepository) {
         this.pacienteRepository = pacienteRepository;
+        this.enderecoRepository = enderecoRepository;
     }
 
     public Paciente CadastrarPaciente(DadosCadastraisPaciente dadosCadastraisPaciente) {
-       return pacienteRepository.save(new Paciente(dadosCadastraisPaciente));
+       return pacienteRepository.save(new Paciente(dadosCadastraisPaciente, enderecoRepository));
     }
 
     @Transactional
@@ -43,9 +46,6 @@ public class PacienteService {
         if (pacienteOpt.isPresent()) {
             Paciente paciente = pacienteOpt.get();
 
-            if (dadosAtualizacaoPaciente.nome() != null) {
-                paciente.setNome(dadosAtualizacaoPaciente.nome());
-            }
 
             if (dadosAtualizacaoPaciente.telefone() != null) {
                 paciente.setTelefone(dadosAtualizacaoPaciente.telefone());

@@ -2,6 +2,7 @@ package net.val.api.medico.service;
 
 import lombok.SneakyThrows;
 import net.val.api.endereco.entity.Endereco;
+import net.val.api.endereco.repository.EnderecoRepository;
 import net.val.api.medico.entity.Medico;
 import net.val.api.medico.dtos.DadosAtualizacaoMedico;
 import net.val.api.medico.dtos.DadosCadastraisMedico;
@@ -20,14 +21,16 @@ import java.util.Optional;
 public class MedicoService {
 
     private final MedicoRepository medicoRepository;
+    private final EnderecoRepository enderecoRepository;
 
-    public MedicoService(MedicoRepository medicoRepository) {
+    public MedicoService(MedicoRepository medicoRepository, EnderecoRepository enderecoRepository) {
         this.medicoRepository = medicoRepository;
+        this.enderecoRepository = enderecoRepository;
     }
 
     public Medico cadastrarMedico(DadosCadastraisMedico dados) {
 
-       return medicoRepository.save(new Medico(dados));
+       return medicoRepository.save(new Medico(dados,enderecoRepository));
     }
 
     @Transactional
@@ -42,9 +45,7 @@ public class MedicoService {
 
         if (medicoOptional.isPresent()) {
             Medico medico = medicoOptional.get();
-            if (dados.nome() != null) {
-                medico.setNome(dados.nome());
-            }
+
             if (dados.telefone() != null) {
                 medico.setTelefone(dados.telefone());
             }

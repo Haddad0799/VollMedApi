@@ -6,7 +6,6 @@ import net.val.api.endereco.dtos.DadosEndereco;
 public record DadosAtualizacaoPaciente(
         @NotNull
         Long id,
-        String nome,
         String telefone,
         Double peso,
         DadosEndereco endereco

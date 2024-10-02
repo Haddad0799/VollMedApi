@@ -44,9 +44,8 @@ public class AgendarConsultaService {
     @Transactional
     public Consulta agendarConsulta(DadosAgendamentoConsulta agendamentoConsulta) {
 
-        if(!pacienteRepository.existsById(agendamentoConsulta.pacienteId())) {
-            throw new PacienteNaoEncontradoException(agendamentoConsulta.pacienteId());
-        }
+        Paciente paciente = pacienteRepository.findById(agendamentoConsulta.pacienteId())
+                .orElseThrow(() -> new PacienteNaoEncontradoException(agendamentoConsulta.pacienteId()));
 
         if(agendamentoConsulta.medicoId() != null && !medicoRepository.existsById(agendamentoConsulta.medicoId())) {
             throw new MedicoNaoEncontradoException(agendamentoConsulta.medicoId());
@@ -55,7 +54,6 @@ public class AgendarConsultaService {
         //Validações de consulta.
         validacoesAgendamentoConsulta.forEach(v -> v.validar(agendamentoConsulta));
 
-        Paciente paciente = pacienteRepository.getReferenceById(agendamentoConsulta.pacienteId());
 
         Medico medico = selecionarMedico(agendamentoConsulta);
 

@@ -36,18 +36,18 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
                                                      @Param("inicio") LocalDateTime inicio,
                                                      @Param("fim") LocalDateTime fim);
 
+
     @Query("""
-    SELECT CASE WHEN COUNT(c) > 0 THEN TRUE ELSE FALSE END\s
+    SELECT CASE WHEN COUNT(c) > 0 THEN TRUE ELSE FALSE END
     FROM Consulta c
-    WHERE c.paciente.id = :pacienteId\s
-    AND c.medico.id = :medicoId\s
+    WHERE c.paciente.id = :pacienteId
+    AND c.medico.id = :medicoId
     AND c.status = 'AGENDADA'
-    AND c.dataConsulta BETWEEN :inicio AND :fim
-""")
-    boolean existsByPacienteIdAndMedicoIdAndDataConsulta(@Param("pacienteId") Long pacienteId,
-                                                         @Param("medicoId") Long medicoId,
-                                                         @Param("inicio") LocalDateTime inicio,
-                                                         @Param("fim") LocalDateTime fim);
+    AND DATE(c.dataConsulta) = DATE(:dataConsulta)
+    """)
+    boolean existsByPacienteIdAndMedicoIdAndDataConsultaNoMesmoDia(@Param("pacienteId") Long pacienteId,
+                                                                   @Param("medicoId") Long medicoId,
+                                                                   @Param("dataConsulta") LocalDateTime dataConsulta);
 
     @Query("SELECT c FROM Consulta c WHERE c.status = 'AGENDADA'")
     Page<Consulta> findAllAgendadas(Pageable pageable);

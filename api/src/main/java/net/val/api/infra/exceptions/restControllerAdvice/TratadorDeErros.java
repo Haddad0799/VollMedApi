@@ -11,6 +11,7 @@ import net.val.api.infra.exceptions.especialidadeExceptions.EspecialidadeInvalid
 import net.val.api.infra.exceptions.especialidadeExceptions.EspecialidadeNulaException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoInativoException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoNaoEncontradoException;
+import net.val.api.infra.exceptions.pacienteExceptions.PacienteInativoException;
 import net.val.api.infra.exceptions.pacienteExceptions.PacienteNaoEncontradoException;
 import net.val.api.infra.exceptions.tipoSanguineoExceptions.TipoSanguineoInvalidoException;
 import net.val.api.infra.exceptions.tokenExceptions.FalhaAoGerarTokenException;
@@ -20,6 +21,7 @@ import net.val.api.infra.exceptions.ufExceptions.UfInvalidaException;
 import net.val.api.infra.exceptions.usuarioException.LoginJaUtilizadoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -62,7 +64,9 @@ public class TratadorDeErros {
             HttpMessageNotReadableException.class,
             LoginJaUtilizadoException.class,
             EspecialidadeNulaException.class,
-            ConsultaNaoEncontrada.class
+            ConsultaNaoEncontrada.class,
+            PacienteInativoException.class,
+            DataIntegrityViolationException.class
     })
     public ResponseEntity<ApiErro> handleBadRequestExceptions(RuntimeException ex, HttpServletRequest request) {
         logger.error("Erro BAD_REQUEST: {}", ex.getMessage());

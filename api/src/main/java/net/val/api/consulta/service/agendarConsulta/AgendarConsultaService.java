@@ -10,10 +10,13 @@ import net.val.api.infra.exceptions.consultaExceptions.ConsultaNaoEncontrada;
 import net.val.api.infra.exceptions.especialidadeExceptions.EspecialidadeNulaException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoInativoException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoNaoEncontradoException;
+import net.val.api.infra.exceptions.pacienteExceptions.PacienteInativoException;
 import net.val.api.infra.exceptions.pacienteExceptions.PacienteNaoEncontradoException;
+import net.val.api.medico.dtos.DadosConsultaMedico;
 import net.val.api.medico.entity.Medico;
 import net.val.api.medico.enums.Especialidade;
 import net.val.api.medico.repository.MedicoRepository;
+import net.val.api.paciente.dtos.DadosConsultaPaciente;
 import net.val.api.paciente.entity.Paciente;
 import net.val.api.paciente.repository.PacienteRepository;
 import org.springframework.context.annotation.Lazy;
@@ -44,8 +47,13 @@ public class AgendarConsultaService {
     @Transactional
     public Consulta agendarConsulta(DadosAgendamentoConsulta agendamentoConsulta) {
 
+
         Paciente paciente = pacienteRepository.findById(agendamentoConsulta.pacienteId())
                 .orElseThrow(() -> new PacienteNaoEncontradoException(agendamentoConsulta.pacienteId()));
+
+        if(!paciente.isAtivo()) {
+            throw new PacienteInativoException(paciente.getId());
+        }
 
         if(agendamentoConsulta.medicoId() != null && !medicoRepository.existsById(agendamentoConsulta.medicoId())) {
             throw new MedicoNaoEncontradoException(agendamentoConsulta.medicoId());
@@ -100,7 +108,7 @@ public class AgendarConsultaService {
 
     }
     public Page<DadosDetalhamentoConsulta> listarConsultas(Pageable pageable) {
-        return consultaRepository.findAllAgendadas(pageable).map(consulta -> new DadosDetalhamentoConsulta(consulta.getId(),consulta.getMedico(),consulta.getPaciente(),consulta.getDataConsulta(),consulta.getEspecialidadeMedica()));
+        return consultaRepository.findAllAgendadas(pageable).map(consulta -> new DadosDetalhamentoConsulta(consulta.getId(),new DadosConsultaPaciente(consulta.getPaciente()),new DadosConsultaMedico(consulta.getMedico()),consulta.getDataConsulta(),consulta.getEspecialidadeMedica()));
 
     }
 

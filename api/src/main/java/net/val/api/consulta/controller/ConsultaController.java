@@ -2,10 +2,13 @@ package net.val.api.consulta.controller;
 
 import jakarta.validation.Valid;
 import lombok.Getter;
+import net.val.api.consulta.dtos.DadosCancelamentoConsulta;
+import net.val.api.consulta.dtos.DadosConsultaCancelada;
 import net.val.api.consulta.entity.Consulta;
 import net.val.api.consulta.dtos.DadosAgendamentoConsulta;
 import net.val.api.consulta.dtos.DadosDetalhamentoConsulta;
 import net.val.api.consulta.service.agendarConsulta.AgendarConsultaService;
+import net.val.api.consulta.service.cancelarConsulta.CancelarConsultaService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +22,11 @@ public class ConsultaController {
 
     private final AgendarConsultaService consultaService;
 
-    public ConsultaController(AgendarConsultaService consultaService) {
+    private final CancelarConsultaService cancelarConsultaService;
+
+    public ConsultaController(AgendarConsultaService consultaService, CancelarConsultaService cancelarConsultaService) {
         this.consultaService = consultaService;
+        this.cancelarConsultaService = cancelarConsultaService;
     }
 
     @PostMapping("/agendar")
@@ -32,11 +38,9 @@ public class ConsultaController {
         return ResponseEntity.created(uri).body(new DadosDetalhamentoConsulta(consulta, consulta.getMedico(),consulta.getPaciente()));
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<Void> cancelar(@PathVariable Long id) {
-        consultaService.CancelarConsulta(id);
-
-        return ResponseEntity.noContent().build();
+    @DeleteMapping()
+    public ResponseEntity<DadosConsultaCancelada> cancelar(@RequestBody @Valid DadosCancelamentoConsulta dadosCancelamentoConsulta) {
+        return ResponseEntity.ok().body(cancelarConsultaService.cancelarConsulta(dadosCancelamentoConsulta));
     }
 
     @GetMapping

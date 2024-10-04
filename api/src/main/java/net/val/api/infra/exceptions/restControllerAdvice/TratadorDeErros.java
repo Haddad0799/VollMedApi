@@ -1,12 +1,9 @@
 package net.val.api.infra.exceptions.restControllerAdvice;
 
 import jakarta.servlet.http.HttpServletRequest;
-import net.val.api.infra.exceptions.consultaExceptions.AntecedenciaInsuficienteException;
-import net.val.api.infra.exceptions.consultaExceptions.ConflitoDeHorarioMedicoException;
-import net.val.api.infra.exceptions.consultaExceptions.ConflitoDeHorarioPacienteException;
-import net.val.api.infra.exceptions.consultaExceptions.ConsultaNaoEncontrada;
+import net.val.api.infra.exceptions.consultaExceptions.agendamentoExceptions.*;
 import net.val.api.infra.exceptions.autenticacaoExceptions.UsuarioNaoEncontradoException;
-import net.val.api.infra.exceptions.consultaExceptions.*;
+import net.val.api.infra.exceptions.consultaExceptions.cancelamentoExceptions.CancelamentoAntecipadoException;
 import net.val.api.infra.exceptions.especialidadeExceptions.EspecialidadeInvalidaException;
 import net.val.api.infra.exceptions.especialidadeExceptions.EspecialidadeNulaException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoInativoException;
@@ -66,7 +63,8 @@ public class TratadorDeErros {
             EspecialidadeNulaException.class,
             ConsultaNaoEncontrada.class,
             PacienteInativoException.class,
-            DataIntegrityViolationException.class
+            DataIntegrityViolationException.class,
+            CancelamentoAntecipadoException.class
     })
     public ResponseEntity<ApiErro> handleBadRequestExceptions(RuntimeException ex, HttpServletRequest request) {
         logger.error("Erro BAD_REQUEST: {}", ex.getMessage());

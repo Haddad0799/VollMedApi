@@ -3,10 +3,8 @@ package net.val.api.consulta.service.agendarConsulta;
 import net.val.api.consulta.dtos.DadosAgendamentoConsulta;
 import net.val.api.consulta.dtos.DadosDetalhamentoConsulta;
 import net.val.api.consulta.entity.Consulta;
-import net.val.api.consulta.enums.StatusConsulta;
 import net.val.api.consulta.repository.ConsultaRepository;
-import net.val.api.consulta.service.validacoes.ValidarAgendamentoConsulta;
-import net.val.api.infra.exceptions.consultaExceptions.ConsultaNaoEncontrada;
+import net.val.api.consulta.service.agendarConsulta.validacoesDeAgendamento.ValidarAgendamentoConsulta;
 import net.val.api.infra.exceptions.especialidadeExceptions.EspecialidadeNulaException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoInativoException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoNaoEncontradoException;
@@ -59,14 +57,21 @@ public class AgendarConsultaService {
             throw new MedicoNaoEncontradoException(agendamentoConsulta.medicoId());
         }
 
-        //Validações de consulta.
-        validacoesAgendamentoConsulta.forEach(v -> v.validar(agendamentoConsulta));
-
-
         Medico medico = selecionarMedico(agendamentoConsulta);
 
+        DadosAgendamentoConsulta dadosAtualizados = new DadosAgendamentoConsulta(
+                agendamentoConsulta.pacienteId(),
+                medico.getId(), // Atualiza com o ID do médico selecionado
+                agendamentoConsulta.dataConsulta(),
+                agendamentoConsulta.especialidadeMedica()
+        );
+
+        //Validações de consulta.
+        validacoesAgendamentoConsulta.forEach(v -> v.validar(dadosAtualizados));
+
+
         // Criar e salvar a consulta
-        Consulta consulta = new Consulta(agendamentoConsulta, medico, paciente);
+        Consulta consulta = new Consulta(dadosAtualizados, medico, paciente);
 
         return consultaRepository.save(consulta);
     }
@@ -92,21 +97,7 @@ public class AgendarConsultaService {
         return medico;
     }
 
-    @Transactional
-    public void CancelarConsulta(Long consultaId) {
-        Optional<Consulta> consultaOptional = consultaRepository.findById(consultaId);
 
-        if(consultaOptional.isEmpty()) {
-            throw new ConsultaNaoEncontrada(consultaId);
-        }
-
-        Consulta consulta = consultaOptional.get();
-
-        consulta.setStatus(StatusConsulta.CANCELADA);
-
-        consultaRepository.save(consulta);
-
-    }
     public Page<DadosDetalhamentoConsulta> listarConsultas(Pageable pageable) {
         return consultaRepository.findAllAgendadas(pageable).map(consulta -> new DadosDetalhamentoConsulta(consulta.getId(),new DadosConsultaPaciente(consulta.getPaciente()),new DadosConsultaMedico(consulta.getMedico()),consulta.getDataConsulta(),consulta.getEspecialidadeMedica()));
 

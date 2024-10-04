@@ -99,7 +99,7 @@ public class AgendarConsultaService {
 
 
     public Page<DadosDetalhamentoConsulta> listarConsultas(Pageable pageable) {
-        return consultaRepository.findAllAgendadas(pageable).map(consulta -> new DadosDetalhamentoConsulta(consulta.getId(),new DadosConsultaPaciente(consulta.getPaciente()),new DadosConsultaMedico(consulta.getMedico()),consulta.getDataConsulta(),consulta.getEspecialidadeMedica()));
+        return consultaRepository.findAllAgendadas(pageable).map(consulta -> new DadosDetalhamentoConsulta(consulta.getId(),new DadosConsultaPaciente(consulta.getPaciente()),new DadosConsultaMedico(consulta.getMedico()),consulta.getDataConsulta(),consulta.getEspecialidadeMedica(),consulta.getStatus()));
 
     }
 

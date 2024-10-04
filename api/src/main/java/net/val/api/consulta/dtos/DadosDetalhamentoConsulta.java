@@ -1,6 +1,7 @@
 package net.val.api.consulta.dtos;
 
 import net.val.api.consulta.entity.Consulta;
+import net.val.api.consulta.enums.StatusConsulta;
 import net.val.api.medico.dtos.DadosConsultaMedico;
 import net.val.api.medico.enums.Especialidade;
 import net.val.api.medico.entity.Medico;
@@ -14,14 +15,15 @@ public record DadosDetalhamentoConsulta(
         DadosConsultaPaciente dadosConsultaPaciente,
         DadosConsultaMedico dadosConsultaMedico,
         LocalDateTime dataConsulta,
-        Especialidade especialidadeMedica
+        Especialidade especialidadeMedica,
+        StatusConsulta statusConsulta
 ) {
     public DadosDetalhamentoConsulta (Consulta consulta, Medico medico, Paciente paciente){
         this(consulta.getId(),
                 new DadosConsultaPaciente(paciente),
                 new DadosConsultaMedico(medico),
                 consulta.getDataConsulta() ,
-                consulta.getEspecialidadeMedica());
+                consulta.getEspecialidadeMedica(),consulta.getStatus());
     }
 
 }

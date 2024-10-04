@@ -2,6 +2,7 @@ package net.val.api.consulta.service.cancelarConsulta;
 
 import net.val.api.consulta.dtos.DadosCancelamentoConsulta;
 import net.val.api.consulta.dtos.DadosConsultaCancelada;
+import net.val.api.consulta.dtos.DadosDetalhamentoConsulta;
 import net.val.api.consulta.entity.Consulta;
 import net.val.api.consulta.enums.MotivoCancelamento;
 import net.val.api.consulta.enums.StatusConsulta;
@@ -43,9 +44,11 @@ public class CancelarConsultaService {
 
         consulta.setStatus(StatusConsulta.CANCELADA);
 
+        DadosDetalhamentoConsulta dadosDetalhamentoConsulta = new DadosDetalhamentoConsulta(consulta,consulta.getMedico(),consulta.getPaciente());
+
         consultaRepository.save(consulta);
 
-      return new DadosConsultaCancelada(consultaRepository.save(consulta),motivoCancelamento);
+      return new DadosConsultaCancelada(dadosDetalhamentoConsulta,motivoCancelamento);
 
     }
 }

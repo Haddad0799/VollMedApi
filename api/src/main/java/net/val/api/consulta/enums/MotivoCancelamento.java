@@ -1,6 +1,7 @@
 package net.val.api.consulta.enums;
 
 import lombok.Getter;
+import net.val.api.infra.exceptions.consultaExceptions.cancelamentoExceptions.MotivoCancelamentoIncorretoException;
 
 @Getter
 public enum MotivoCancelamento {
@@ -21,6 +22,6 @@ public enum MotivoCancelamento {
                 return motivo;
             }
         }
-        throw new IllegalArgumentException();
+        throw new MotivoCancelamentoIncorretoException(descricao);
     }
 }

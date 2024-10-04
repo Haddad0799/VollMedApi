@@ -4,13 +4,13 @@ import net.val.api.consulta.entity.Consulta;
 import net.val.api.consulta.enums.MotivoCancelamento;
 
 public record DadosConsultaCancelada(
-        Consulta consulta,
+       DadosDetalhamentoConsulta dadosDetalhamentoConsulta,
         MotivoCancelamento motivoCancelamento
 
 
 ) {
-    public DadosConsultaCancelada(Consulta consulta, MotivoCancelamento motivoCancelamento) {
-        this.consulta = consulta;
+    public DadosConsultaCancelada(DadosDetalhamentoConsulta dadosDetalhamentoConsulta, MotivoCancelamento motivoCancelamento) {
+        this.dadosDetalhamentoConsulta = dadosDetalhamentoConsulta;
         this.motivoCancelamento = motivoCancelamento;
     }
 }

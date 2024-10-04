@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import net.val.api.infra.exceptions.consultaExceptions.agendamentoExceptions.*;
 import net.val.api.infra.exceptions.autenticacaoExceptions.UsuarioNaoEncontradoException;
 import net.val.api.infra.exceptions.consultaExceptions.cancelamentoExceptions.CancelamentoAntecipadoException;
+import net.val.api.infra.exceptions.consultaExceptions.cancelamentoExceptions.MotivoCancelamentoIncorretoException;
 import net.val.api.infra.exceptions.especialidadeExceptions.EspecialidadeInvalidaException;
 import net.val.api.infra.exceptions.especialidadeExceptions.EspecialidadeNulaException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoInativoException;
@@ -64,7 +65,8 @@ public class TratadorDeErros {
             ConsultaNaoEncontrada.class,
             PacienteInativoException.class,
             DataIntegrityViolationException.class,
-            CancelamentoAntecipadoException.class
+            CancelamentoAntecipadoException.class,
+            MotivoCancelamentoIncorretoException.class
     })
     public ResponseEntity<ApiErro> handleBadRequestExceptions(RuntimeException ex, HttpServletRequest request) {
         logger.error("Erro BAD_REQUEST: {}", ex.getMessage());

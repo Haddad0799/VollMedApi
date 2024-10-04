@@ -30,6 +30,7 @@ public class CancelarConsultaService {
 
     @Transactional
     public DadosConsultaCancelada cancelarConsulta(DadosCancelamentoConsulta dadosCancelamentoConsulta) {
+
         Optional<Consulta> consultaOptional = consultaRepository.findById(dadosCancelamentoConsulta.consultaId());
 
         if(consultaOptional.isEmpty()) {

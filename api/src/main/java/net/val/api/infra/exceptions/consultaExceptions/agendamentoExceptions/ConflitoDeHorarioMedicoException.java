@@ -1,4 +1,4 @@
-package net.val.api.infra.exceptions.consultaExceptions;
+package net.val.api.infra.exceptions.consultaExceptions.agendamentoExceptions;
 
 import java.time.LocalDateTime;
 

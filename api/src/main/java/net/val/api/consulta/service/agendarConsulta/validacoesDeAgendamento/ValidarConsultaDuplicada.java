@@ -1,8 +1,8 @@
-package net.val.api.consulta.service.validacoes;
+package net.val.api.consulta.service.agendarConsulta.validacoesDeAgendamento;
 
 import net.val.api.consulta.dtos.DadosAgendamentoConsulta;
 import net.val.api.consulta.repository.ConsultaRepository;
-import net.val.api.infra.exceptions.consultaExceptions.PacienteComConsultaDuplicadaException;
+import net.val.api.infra.exceptions.consultaExceptions.agendamentoExceptions.PacienteComConsultaDuplicadaException;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;

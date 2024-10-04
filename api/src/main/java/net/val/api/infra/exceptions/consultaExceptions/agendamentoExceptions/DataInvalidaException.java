@@ -1,6 +1,4 @@
-package net.val.api.infra.exceptions.consultaExceptions;
-
-import java.time.LocalDateTime;
+package net.val.api.infra.exceptions.consultaExceptions.agendamentoExceptions;
 
 public class DataInvalidaException extends RuntimeException{
     public DataInvalidaException() {

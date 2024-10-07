@@ -1,5 +1,6 @@
 package net.val.api.medico.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import net.val.api.medico.dtos.DadosAtualizacaoMedico;
 import net.val.api.medico.dtos.DadosCadastraisMedico;
@@ -15,6 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/medicos")
+@SecurityRequirement(name = "bearer-key")
 public class MedicoController {
 
     MedicoService medicoService;

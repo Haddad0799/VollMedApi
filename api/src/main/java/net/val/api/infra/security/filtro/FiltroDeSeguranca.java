@@ -33,10 +33,16 @@ public class FiltroDeSeguranca extends OncePerRequestFilter {
 
     @SneakyThrows
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
 
-    {
-        if (request.getRequestURI().equals("/login") || request.getRequestURI().equals("/usuarios/cadastro")) {
+
+        String requestUri = request.getRequestURI();
+
+        // Ignorar as URLs que foram liberadas
+        if (requestUri.equals("/login") ||
+                requestUri.equals("/usuarios/cadastro") ||
+                requestUri.startsWith("/swagger-ui") ||
+                requestUri.startsWith("/v3/api-docs")) {
             filterChain.doFilter(request, response);
             return;
         }

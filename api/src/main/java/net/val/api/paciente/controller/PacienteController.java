@@ -1,5 +1,6 @@
 package net.val.api.paciente.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import net.val.api.paciente.dtos.DadosAtualizacaoPaciente;
 import net.val.api.paciente.dtos.DadosCadastraisPaciente;
@@ -15,6 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/pacientes")
+@SecurityRequirement(name = "bearer-key")
 public class PacienteController {
 
     private final PacienteService pacienteService;

@@ -1,5 +1,6 @@
 package net.val.api.consulta.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.Getter;
 import net.val.api.consulta.dtos.DadosCancelamentoConsulta;
@@ -18,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Getter
 @RestController
 @RequestMapping("consultas")
+@SecurityRequirement(name = "bearer-key")
 public class ConsultaController {
 
     private final AgendarConsultaService consultaService;

@@ -50,6 +50,16 @@ public class Medico {
         this.ativo = true;
     }
 
+    public Medico(DadosCadastraisMedico dadosCadastrais) {
+        this.nome = dadosCadastrais.nome();
+        this.email = dadosCadastrais.email();
+        this.telefone = dadosCadastrais.telefone();
+        this.crm = Long.parseLong(dadosCadastrais.crm());
+        this.especialidade = Especialidade.fromEspecialidade(dadosCadastrais.especialidade());
+        this.endereco = null;
+        this.ativo = true;
+    }
+
     @Override
     public String toString() {
         return """

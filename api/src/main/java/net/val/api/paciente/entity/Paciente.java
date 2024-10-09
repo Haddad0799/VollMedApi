@@ -57,6 +57,20 @@ public class Paciente {
         this.ativo = true;
     }
 
+    public Paciente(DadosCadastraisPaciente dadosCadastraisPaciente) {
+        this.nome = dadosCadastraisPaciente.nome();
+        this.cpf = dadosCadastraisPaciente.cpf();
+        this.telefone = dadosCadastraisPaciente.telefone();
+        this.endereco = null;
+        this.tipoSanguineo = TipoSanguineo.fromTipo(dadosCadastraisPaciente.tipoSanguineo());
+        this.dataNasc = dadosCadastraisPaciente.dataNasc();
+        this.peso = dadosCadastraisPaciente.peso();
+        this.dataCadastro = LocalDate.now();
+        this.idade = calcularIdade(this.dataNasc);
+        this.ativo = true;
+    }
+
+
     private int calcularIdade(LocalDate dataNasc) {
             if (dataNasc != null) {
                 LocalDate dataAtual = LocalDate.now();

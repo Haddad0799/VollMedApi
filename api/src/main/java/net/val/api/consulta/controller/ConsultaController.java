@@ -41,8 +41,11 @@ public class ConsultaController {
     }
 
     @DeleteMapping()
-    public ResponseEntity<DadosConsultaCancelada> cancelar(@RequestBody @Valid DadosCancelamentoConsulta dadosCancelamentoConsulta) {
-        return ResponseEntity.ok().body(cancelarConsultaService.cancelarConsulta(dadosCancelamentoConsulta));
+    public ResponseEntity<DadosDetalhamentoConsulta> cancelar(@RequestBody @Valid DadosCancelamentoConsulta dadosCancelamentoConsulta) {
+
+        Consulta consulta = cancelarConsultaService.cancelarConsulta(dadosCancelamentoConsulta);
+
+        return ResponseEntity.ok().body(new DadosDetalhamentoConsulta(consulta,consulta.getMedico(),consulta.getPaciente()));
     }
 
     @GetMapping

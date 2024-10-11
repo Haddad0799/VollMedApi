@@ -65,4 +65,26 @@ class MedicoRepositoryTest {
         em.persist(medico); // Persiste o médico no banco de dados para o teste
         return medico; // Retorna o médico cadastrado para as verificações
     }
+
+    @Test
+    @DisplayName("Deve retornar um medico que esteja ativo e corresponda ao id fornecido")
+    void findByIdAndAndAtivoTrueCenario1() {
+        Medico medico = cadastrarMedico("joao", "medVoll@gmail.com", "6291763542", "109876", "ortopedia");
+
+        var medicoAtivo = medicoRepository.findByIdAndAndAtivoTrue(medico.getId());
+
+        assertThat(medicoAtivo).isPresent();
+
+    }
+
+    @Test
+    @DisplayName("Não deve retornar o medico correspondente ao id se ele estiver inativo")
+    void findByIdAndAndAtivoTrueCenario2() {
+        Medico medico = cadastrarMedico("joao", "medVoll@gmail.com", "6291763542", "109876", "ortopedia");
+        medico.setAtivo(false);
+
+        var medicoInativo = medicoRepository.findByIdAndAndAtivoTrue(medico.getId());
+
+        assertThat(medicoInativo).isEmpty();
+    }
 }

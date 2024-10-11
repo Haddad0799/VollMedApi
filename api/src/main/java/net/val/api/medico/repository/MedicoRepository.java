@@ -18,4 +18,6 @@ public interface MedicoRepository extends JpaRepository<Medico, Long> {
     @Query("select m from Medico m where m.ativo = true and m.especialidade = :especialidade order by function('RAND') limit 1")
     Optional<Medico> medicoAletorio(Especialidade especialidade);
 
+    @Query("select m from Medico m where m.id = :id and m.ativo = true")
+    Optional<Medico> findByIdAndAndAtivoTrue(Long id);
 }

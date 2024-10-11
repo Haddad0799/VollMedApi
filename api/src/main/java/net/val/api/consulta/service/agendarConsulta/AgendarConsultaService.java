@@ -6,9 +6,7 @@ import net.val.api.consulta.entity.Consulta;
 import net.val.api.consulta.repository.ConsultaRepository;
 import net.val.api.consulta.service.agendarConsulta.validacoesDeAgendamento.ValidarAgendamentoConsulta;
 import net.val.api.infra.exceptions.especialidadeExceptions.EspecialidadeNulaException;
-import net.val.api.infra.exceptions.medicoExceptions.MedicoInativoException;
 import net.val.api.infra.exceptions.medicoExceptions.MedicoNaoEncontradoException;
-import net.val.api.infra.exceptions.pacienteExceptions.PacienteInativoException;
 import net.val.api.infra.exceptions.pacienteExceptions.PacienteNaoEncontradoException;
 import net.val.api.medico.dtos.DadosConsultaMedico;
 import net.val.api.medico.entity.Medico;
@@ -46,12 +44,9 @@ public class AgendarConsultaService {
     public Consulta agendarConsulta(DadosAgendamentoConsulta agendamentoConsulta) {
 
 
-        Paciente paciente = pacienteRepository.findById(agendamentoConsulta.pacienteId())
+        Paciente paciente = pacienteRepository.findByIdAndAtivoTrue(agendamentoConsulta.pacienteId())
                 .orElseThrow(() -> new PacienteNaoEncontradoException(agendamentoConsulta.pacienteId()));
 
-        if(!paciente.isAtivo()) {
-            throw new PacienteInativoException(paciente.getId());
-        }
 
         if(agendamentoConsulta.medicoId() != null && !medicoRepository.existsById(agendamentoConsulta.medicoId())) {
             throw new MedicoNaoEncontradoException(agendamentoConsulta.medicoId());
@@ -87,14 +82,9 @@ public class AgendarConsultaService {
             return medicoAleatorio.orElseThrow(() -> new MedicoNaoEncontradoException(Especialidade.fromEspecialidade(agendamentoConsulta.especialidadeMedica())));
         }
 
-        Medico medico = medicoRepository.findById(agendamentoConsulta.medicoId())
+
+        return medicoRepository.findByIdAndAndAtivoTrue(agendamentoConsulta.medicoId())
                 .orElseThrow(() -> new MedicoNaoEncontradoException(agendamentoConsulta.medicoId()));
-
-        if (!medico.isAtivo()) {
-            throw new MedicoInativoException(medico.getId());
-        }
-
-        return medico;
     }
 
 

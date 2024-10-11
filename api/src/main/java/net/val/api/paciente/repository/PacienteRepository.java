@@ -14,5 +14,5 @@ public interface PacienteRepository extends JpaRepository<Paciente, Long> {
     Page<Paciente> findAllByAtivoTrue(Pageable pageable);
 
     @Query("select p from Paciente p where p.id = :id and p.ativo = true")
-    Optional<Paciente> findByIdAndAndAtivoTrue(Long id);
+    Optional<Paciente> findByIdAndAtivoTrue(Long id);
 }

@@ -1,8 +1,6 @@
 package net.val.api.consulta.service.cancelarConsulta;
 
 import net.val.api.consulta.dtos.DadosCancelamentoConsulta;
-import net.val.api.consulta.dtos.DadosConsultaCancelada;
-import net.val.api.consulta.dtos.DadosDetalhamentoConsulta;
 import net.val.api.consulta.entity.Consulta;
 import net.val.api.consulta.enums.MotivoCancelamento;
 import net.val.api.consulta.enums.StatusConsulta;
@@ -29,7 +27,7 @@ public class CancelarConsultaService {
 
 
     @Transactional
-    public DadosConsultaCancelada cancelarConsulta(DadosCancelamentoConsulta dadosCancelamentoConsulta) {
+    public Consulta cancelarConsulta(DadosCancelamentoConsulta dadosCancelamentoConsulta) {
 
         Optional<Consulta> consultaOptional = consultaRepository.findById(dadosCancelamentoConsulta.consultaId());
 
@@ -37,7 +35,7 @@ public class CancelarConsultaService {
             throw new ConsultaNaoEncontrada(dadosCancelamentoConsulta.consultaId());
         }
 
-        MotivoCancelamento motivoCancelamento = MotivoCancelamento.fromDescricao(dadosCancelamentoConsulta.motivoCancelamento());
+        MotivoCancelamento.fromDescricao(dadosCancelamentoConsulta.motivoCancelamento());
 
         validarCancelamentoConsulta.forEach(v -> v.validar(dadosCancelamentoConsulta));
 
@@ -45,11 +43,7 @@ public class CancelarConsultaService {
 
         consulta.setStatus(StatusConsulta.CANCELADA);
 
-        DadosDetalhamentoConsulta dadosDetalhamentoConsulta = new DadosDetalhamentoConsulta(consulta,consulta.getMedico(),consulta.getPaciente());
-
-        consultaRepository.save(consulta);
-
-      return new DadosConsultaCancelada(dadosDetalhamentoConsulta,motivoCancelamento);
+      return  consultaRepository.save(consulta);
 
     }
 }

@@ -198,10 +198,10 @@ Embora não fosse a melhor maneira de resolver, foi a maneira que encontrei de t
 
 ##### Para realizar essas validações, foi utilizado o polimorfismo da programação orientada a objetos, permitindo que todas as validações fossem feitas de maneira modular. Assim, a adição de novas validações ou modificação das existentes não interfere diretamente no método de agendamento de consultas. Para isso, foi utilizado um design pattern chamado Strategy.
 
-##### **Implementação do Strategy Pattern**
+#### **Implementação do Strategy Pattern**
 
 - Inicialmente, foi criada uma interface com um método `validar`:
-- 
+
 ````java
 package net.val.api.consulta.service.agendarConsulta.validacoesDeAgendamento;
 
@@ -270,7 +270,7 @@ public class AgendarConsultaService {
    }
 }
 ````
-##### **Benefícios dessa abordagem**
+#### **Benefícios dessa abordagem**
 - ✔ Baixo acoplamento → O serviço de agendamento não depende diretamente das regras de validação.
 - ✔ Facilidade de manutenção → Novas validações podem ser adicionadas sem modificar o serviço principal.
 - ✔ Extensibilidade → Se novas regras de negócio surgirem, basta criar uma nova classe de validação que implemente a interface, e ela será automaticamente incluída.

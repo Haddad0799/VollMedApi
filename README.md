@@ -89,7 +89,7 @@ Acesse a documentação Swagger da API para explorar os endpoints disponíveis:
 
 ### Desafios
 - Entender como funciona a autenticação via token JWT para implementá-la na minha API.
-- Compreender a implementação do securityFilterChain e a ordem de chamada dos filtros, gerenciados pelo Spring. Isso me causou problemas, principalmente no tratamento de exceções personalizadas, pois, para endpoints bloqueados, mesmo com um token válido no momento da requisição, qualquer outro erro gerava uma resposta 401 Unauthorized.
+- Compreender a implementação do `securityFilterChain` e a ordem de chamada dos filtros, gerenciados pelo Spring. Isso me causou problemas, principalmente no tratamento de algumas exceções personalizadas que eram lançadas dentro do filtro de autenticação, exceções essas que não eram tratadas pelo meu `RestControllerAdcive`, mesmo estando configuradas para serem tratadas.
 - Implementar validações de maneira que seguisse boas práticas, sem que a classe service da funcionalidade de agendamento de consultas ficasse diretamente acoplada às validações. Caso contrário, sempre que uma nova validação fosse adicionada, removida ou modificada, seria necessário alterar o método responsável por validar, aprovar ou reprovar o agendamento, ferindo o princípio Open/Closed do SOLID, que afirma que uma classe deve estar aberta para expansão e fechada para modificação.
 
 ### Soluções
@@ -136,8 +136,145 @@ public String getSubject(String token)  {
 - getSubject(String token): Este método recebe um token, verifica sua autenticidade utilizando o segredo (jwtSecret) e, se o token for válido, extrai e retorna o subject (informações do usuário) do token. Caso o token seja inválido ou expirado, uma exceção é lançada.
 
 #### SecurityFilterChain
--
+- Após compreender que algumas exceções como por exemplo as exceções lançadas no método getSubject(String token), não estavam sendo tratadas pelo meu `RestControllerAdvice`, por causa da ordem de execução dos filtros, e qualquer exceção lançada dentro do metodo `doFilterInternal` seria tratada por padrão pela classe do spring `ExceptionTranslationFilter`, que devolvia por padrão status 403 forbidden. Resolvi tratar com try-catch essas exceções dentro do método onde elas poderiam ocorrer.
+```java
+@SneakyThrows
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
 
+
+        String requestUri = request.getRequestURI();
+
+        // Ignorar as URLs que foram liberadas
+        if (requestUri.equals("/login") ||
+                requestUri.equals("/usuarios/cadastro") ||
+                requestUri.startsWith("/swagger-ui") ||
+                requestUri.startsWith("/v3/api-docs")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        try {
+            String tokenJwt = recuperarToken(request);
+            var subject = tokenService.getSubject(tokenJwt);
+            Optional<UserDetails> userDetails = usuarioRepository.findByLogin(subject);
+
+            if (userDetails.isPresent()) {
+                var usuario = userDetails.get();
+                var usuarioAutenticado = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(usuarioAutenticado);
+            }  
+        } catch (TokenNotProvidedException ex) { 
+            // Resposta para token não fornecido
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setContentType("application/json");
+            response.getWriter().write(String.format("{\"timestamp\":\"%s\",\"status\":%d,\"error\":\"Bad Request\",\"message\":\"%s\",\"path\":\"%s\"}",
+                    LocalDateTime.now(), HttpServletResponse.SC_BAD_REQUEST, "Token não enviado no cabeçalho!", request.getRequestURI()));
+            return;
+        } catch (InvalidTokenException ex) {
+            // Resposta para token inválido
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write(String.format("{\"timestamp\":\"%s\",\"status\":%d,\"error\":\"Unauthorized\",\"message\":\"%s\",\"path\":\"%s\"}",
+                    LocalDateTime.now(), HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage(), request.getRequestURI()));
+            return;
+        }
+        // Chamando os próximos filtros caso não haja erro.
+        filterChain.doFilter(request, response);
+    }
+````
+Embora não fosse a melhor maneira de resolver, foi a maneira que encontrei de tratar esses erros, e devolver respostas mais claras aos clientes dessa API.(Futuramente em outro projeto me deparei com o mesmo problema e resolvi desenvolvendo um `AuthenticationEntryPoint` e um `AccessDeniedHandler`)
+
+###### Explicação
+- O método recuperarToken() e getSubject() poderiam lançar TokenNotProvidedException e InvalidTokenException respectivamente, que eram exceções tratadas pelo RestControllerAdvice, mas como a exceção era bloqueada caso a autenticação falhasse, se ocorreu uma dessas exceptions é por que não houve autenticação, se não houve autenticação, a requisição não chega ao controller e o erro não é tratado devidamente.
+ 
+ #### Validações com boas práticas
+ 
+ ##### Para desenvolver a funcionalidade de agendamento de consultas, algumas validações eram necessárias, como por exemplo:
+- ✅ Validar se a consulta respeita os dias e horários de funcionamento da clínica.
+- ✅ Validar agendamentos com antecedência.
+- ✅ Validar conflito de horários entre médicos e pacientes.
+- ✅ Validar consultas duplicadas.
+
+##### Para realizar essas validações, foi utilizado o polimorfismo da programação orientada a objetos, permitindo que todas as validações fossem feitas de maneira modular. Assim, a adição de novas validações ou modificação das existentes não interfere diretamente no método de agendamento de consultas. Para isso, foi utilizado um design pattern chamado Strategy.
+
+##### **Implementação do Strategy Pattern**
+
+- Inicialmente, foi criada uma interface com um método `validar`:
+- 
+````java
+package net.val.api.consulta.service.agendarConsulta.validacoesDeAgendamento;
+
+import net.val.api.consulta.dtos.DadosAgendamentoConsulta;
+import org.springframework.stereotype.Component;
+
+@Component
+public interface ValidarAgendamentoConsulta {
+
+    void validar(DadosAgendamentoConsulta dadosAgendamentoConsulta);
+}
+
+````
+
+- Para cada classe que representa uma validação, essa interface é implementada. Dessa forma, aplicamos o conceito de polimorfismo: uma classe pode ser uma validação de conflito de horário, mas também uma validação de consulta.
+
+ ````java
+@Component
+public class ValidarConflitoDeHorario implements ValidarAgendamentoConsulta {
+
+    private final ConsultaRepository consultaRepository;
+
+    public ValidarConflitoDeHorario(ConsultaRepository consultaRepository) {
+        this.consultaRepository = consultaRepository;
+    }
+
+    @Override
+    public void validar(DadosAgendamentoConsulta dadosAgendamentoConsulta) {
+        LocalDateTime inicioConsulta = dadosAgendamentoConsulta.dataConsulta();
+        LocalDateTime fimConsulta = inicioConsulta.plusMinutes(59);
+
+        // Verifica se há alguma consulta do médico no intervalo de uma hora antes ou uma hora depois
+        LocalDateTime intervaloInicio = inicioConsulta.minusMinutes(59);
+
+        // Verificar se há conflito de horário para o médico
+        if (consultaRepository.existsByMedicoIdAndDataConsultaBetween(dadosAgendamentoConsulta.medicoId(), intervaloInicio, fimConsulta)) {
+            throw new ConflitoDeHorarioMedicoException(dadosAgendamentoConsulta.dataConsulta(), dadosAgendamentoConsulta.medicoId());
+        }
+
+        if (consultaRepository.existsByPacienteIdAndDataConsultaBetween(dadosAgendamentoConsulta.pacienteId(), intervaloInicio, fimConsulta)) {
+            throw new ConflitoDeHorarioPacienteException(dadosAgendamentoConsulta.dataConsulta());
+        }
+    }
+}
+````
+- Dentro do serviço de agendamento de consultas, utilizamos injeção de dependência para instanciar uma lista de validações.
+ 
+````java
+@Service
+public class AgendarConsultaService {
+ private final List<ValidarAgendamentoConsulta> validacoesAgendamentoConsulta;
+}
+````
+
+- Agora, dentro do método de realização de consultas, chamamos todos os métodos `validar` das classes presentes na lista de validações. Cada uma delas possui sua própria lógica para validar a consulta, garantindo que todas as regras de negócio sejam respeitadas antes de efetivar o agendamento.
+
+````java
+@Service
+public class AgendarConsultaService {
+ private final List<ValidarAgendamentoConsulta> validacoesAgendamentoConsulta;
+
+@Transactional
+    public Consulta agendarConsulta(DadosAgendamentoConsulta agendamentoConsulta) {
+       //Validações de consulta.
+        validacoesAgendamentoConsulta.forEach(v -> v.validar(agendamentoConsulta));
+   }
+}
+````
+##### **Benefícios dessa abordagem**
+- ✔ Baixo acoplamento → O serviço de agendamento não depende diretamente das regras de validação.
+- ✔ Facilidade de manutenção → Novas validações podem ser adicionadas sem modificar o serviço principal.
+- ✔ Extensibilidade → Se novas regras de negócio surgirem, basta criar uma nova classe de validação que implemente a interface, e ela será automaticamente incluída.
+- ✔ Respeito ao Princípio Aberto/Fechado (OCP - Open/Closed Principle) → O código está preparado para extensão sem necessidade de modificações estruturais.
 
 
 
